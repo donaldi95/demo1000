@@ -42,26 +42,12 @@ from django.dispatch import receiver
 from .models import Profile
 
 
-http://one.me/enassylk
 
-klajdi.millona@cmimontaggi.it
-@cm1montagg1!!@
+# URLS FOR THE SITE
 
-eris.millona@cmimontaggi.it
-@cm1montagg1@!
+#coment this is to login               		/login
+#coment this is register new user      		/register
+#coment this is to create new campaign 		/campaign/new 
+#comment, this is to get all campaigns 	      	/campaign
+#comment this is to go to loged in user profile	 /profile
 
-elisenda.millona@cmimontaggi.it
-@cm1montagg11@!
-
-
-info@cmimontaggi.it
-@cm1montagg11info#$
-
-segretaria@cmimontaggi.it
-@cm1montagg1segretaria@$
-
-loredana.defalco@cmimontaggi.it
-@cm1montagg1loredan4@$
-
-fatturazione@cmimontaggi.it
-@cm1montagg1fattur4z1on3@$

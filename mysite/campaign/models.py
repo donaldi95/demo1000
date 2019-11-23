@@ -19,4 +19,3 @@ class Campaign(models.Model):
 	#method to find the url to a specific campaign
 	def get_absolute_url(self):
 		return reverse('campaign-detail', kwargs={'pk': self.pk})
-

@@ -1,0 +1,16 @@
+{% extends "users/base.html" %}
+{% block content %}
+    {% for campaign in campaign %}
+          <article class="media content-section">
+            <img class="rounded-circle article-img" src="{{ campaign.user_id.profile.image.url }}">
+            <div class="media-body">
+              <div class="article-metadata">
+                <a class="mr-2" href="#">{{ campaign.user_id }}</a>
+                <p class="mr-2">Campaign Created on : {{ campaign.date_posted|date:"F d, Y" }}</p>
+              </div>
+              <h2><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Start Date is: {{ campaign.start_date }}</a></h2>
+              <p class="article-content">End date : {{ campaign.end_date }}</p>
+            </div>
+          </article>
+    {% endfor %}
+{% endblock content %}

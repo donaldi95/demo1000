@@ -2,9 +2,12 @@ from django.shortcuts import render
 from django.views.generic import (
 	ListView, 
 	DetailView, 
-	CreateView
+	CreateView,
+	UpdateView
 	)
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Campaign
+
 
 
 # Create your views here.
@@ -18,13 +21,16 @@ from .models import Campaign
 	# 2) SHOW HERE THE CLICKED POST
 
 def campaign(request):
-	return render(request,'campaign/campaign.html')
+	context = {
+        'campaign': Campaign.objects.all()
+    }
+	return render(request,'campaign/campaign.html',context)
 
 
 # class base view
 class CampaignListView(ListView):
 	model = Campaign
-	template_name = 'users/profile.html' # <app>/<model>_<viewtype>.html
+	template_name = 'campaign/campaign.html' # <app>/<model>_<viewtype>.html
 	context_object_name = 'campaign'
 	ordering = ['-date_posted']
 
@@ -34,7 +40,22 @@ class CampaignDetailView(DetailView):
 	model = Campaign
 
 # creatign a new campaign
-class CampaignCreateView(CreateView):
+class CampaignCreateView(LoginRequiredMixin,CreateView):
+	model = Campaign
+	# passing the field for the form for each campaign
+	fields = ['name','status','start_date','end_date']
+
+	#checking if form is valid and we add the current user to the form
+	def form_valid(self,form):
+		#user_id is the id of the user we want to associate to the campaign
+		form.instance.user_id = self.request.user
+		return super().form_valid(form)
+
+
+
+
+# creatign a new campaign
+class CampaignUpdateView(LoginRequiredMixin, UpdateView):
 	model = Campaign
 	# passing the field for the form for each campaign
 	fields = ['name','status','start_date','end_date']
