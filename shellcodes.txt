@@ -1,0 +1,67 @@
+### to create a super user
+
+python manage.py createsuperuser
+
+
+
+// class based used
+// signals
+
+
+settings.py 
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'awt',
+        'USER': 'root',
+        'PASSWORD': 'root',
+        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'PORT': '3306',
+    }
+}
+
+
+# add this in init .php
+
+import pymysql
+
+pymysql.install_as_MySQLdb()
+
+
+
+## SIGNALS
+## post_Save is fired anytime an object is saved, in our case a campaign, post, or sth else
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+
+# receiver is a function that get the SIGNAL and perform some tasks
+from django.dispatch import receiver
+
+# we want to import profile since we create some profile
+from .models import Profile
+
+
+http://one.me/enassylk
+
+klajdi.millona@cmimontaggi.it
+@cm1montagg1!!@
+
+eris.millona@cmimontaggi.it
+@cm1montagg1@!
+
+elisenda.millona@cmimontaggi.it
+@cm1montagg11@!
+
+
+info@cmimontaggi.it
+@cm1montagg11info#$
+
+segretaria@cmimontaggi.it
+@cm1montagg1segretaria@$
+
+loredana.defalco@cmimontaggi.it
+@cm1montagg1loredan4@$
+
+fatturazione@cmimontaggi.it
+@cm1montagg1fattur4z1on3@$

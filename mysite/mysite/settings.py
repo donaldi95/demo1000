@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'users.apps.UsersConfig',
+    'campaign.apps.CampaignConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'crispy_forms',
@@ -124,6 +125,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
+#this specifies that our media will be based on our base root directory, and called media
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# how we will access our media thorught url
+MEDIA_URL  = '/media/'
+
+LOGIN_REDIRECT = '/profile/'
 
 AUTH_USER_MODEL = 'users.MyUser'
