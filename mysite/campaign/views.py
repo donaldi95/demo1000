@@ -49,7 +49,7 @@ class CampaignDetailView(FormMixin,DetailView):
 	form_class = PeakForm
 
 	def get_success_url(self):
-		return reverse("campaign-detail", kwargs={"pk": self.object.id})
+		return reverse("peak-list", kwargs={"pk": self.object.id})
 
 	def get_context_data(self, **kwargs):
 		context = super(CampaignDetailView, self).get_context_data(**kwargs)

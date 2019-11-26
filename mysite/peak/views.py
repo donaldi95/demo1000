@@ -17,4 +17,3 @@ class PeakListView(ListView):
 	model = Peak
 	template_name = 'peak/peak.html' # <app>/<model>_<viewtype>.html
 	context_object_name = 'peak'
-	ordering = ['-date_posted']
