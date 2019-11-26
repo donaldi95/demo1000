@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .admin import UserCreationForm
 from campaign.models import Campaign
+from .models import MyUser
 
 def register(request):
     if request.method == 'POST':
@@ -24,3 +25,4 @@ def profile(request):
     return render(request, 'users/profile.html', {'campaigns': logged_in_user_posts})
 
 #get the campaign for each user
+

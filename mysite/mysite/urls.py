@@ -28,6 +28,7 @@ urlpatterns = [
     path('profile/', users_views.profile, name='profile'),
     path('', include('users.urls')),
     path('', include('campaign.urls')),
+    path('', include('peak.urls')),
 ]
 
 

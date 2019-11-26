@@ -1,0 +1,17 @@
+{% extends "users/base.html" %}
+{% block content %}
+    {% for p in peak %}
+    <div class="container">
+          <article class="media content-section">
+            <div class="media-body">
+              <div class="article-metadata">
+                <a class="mr-2" href="#">{{ p.campaign_id }}</a>
+                <p class="mr-2">Campaign Parent : {{ peak.campaign_id.campaign.name }}</p>
+              </div>
+            
+            </div>
+          </article>
+
+        </div>
+    {% endfor %}
+{% endblock content %}
