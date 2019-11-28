@@ -17,3 +17,8 @@ class PeakListView(ListView):
 	model = Peak
 	template_name = 'peak/peak.html' # <app>/<model>_<viewtype>.html
 	context_object_name = 'peak'
+	
+	def get_queryset(self):
+		self.campaign_id = get_object_or_404(Campaign, id=self.kwargs['pk'])
+		return Peak.objects.filter(campaign_id=self.campaign_id)
+		

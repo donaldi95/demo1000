@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'djgeojson',
+    'leaflet',
     'users.apps.UsersConfig',
     'peak.apps.PeakConfig',
     'campaign.apps.CampaignConfig',

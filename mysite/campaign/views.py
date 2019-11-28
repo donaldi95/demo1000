@@ -17,6 +17,8 @@ from .models import Campaign
 from users.models import MyUser
 from peak.models import Peak
 from peak.forms import PeakForm
+import json
+
 
 # Create your views here.
 
@@ -44,7 +46,7 @@ class CampaignListView(ListView):
 
 # a view for individual campaign
 # here i am sticking to django default template just to show the difference
-class CampaignDetailView(FormMixin,DetailView):
+class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,DetailView):
 	model = Campaign
 	form_class = PeakForm
 
@@ -65,12 +67,46 @@ class CampaignDetailView(FormMixin,DetailView):
 			return self.form_invalid(form)
 
 	def form_valid(self,form):
-		form.name = self.object
+		form.fields = self.object
+		#form.instance.name gets the name of the tag field
+		mydata = form.instance.fileJson
+		mydataTemp = json.load(mydata)
+		mydataTemp = json.dumps(mydataTemp)
+		mydata3 = json.loads(mydataTemp)
+		#print("heeey")
+		#print(mydata3) 
+		for data in mydata3:
+			print(data['provenance'])
+			print(data['id'])
+			#self.object gets here the Entity we are viweing
 
-		#self.object gets here the Entity we are viweing
-		form.instance.campaign_id = self.object
-		form.save()
+			form.instance.id 				= data['id']
+			form.instance.lat 				= data['latitude']
+			form.instance.lon				= data['longitude']
+			form.instance.alt				= data['elevation']
+			form.instance.localize_names 	= data['localized_names']
+			form.instance.provenance_org 	= data['provenance']
+			form.instance.name 				= data['name']
+			form.instance.campaign_id 		= self.object
+			form.save()
 		return super().form_valid(form)
+
+
+	def test_func(self):
+		# getting the campaign that we are currently trying to update
+		campaign = self.get_object()
+		#the first parametter gets the  user
+		if self.request.user == campaign.user_id:
+			return True
+		return False
+
+	def test_func(self):
+		# getting the campaign that we are currently trying to update
+		#the first parametter gets the  user
+		if self.request.user.is_manager == True:
+			return True
+		return False
+
 
 # creatign a new campaign
 class CampaignCreateView(UserPassesTestMixin,LoginRequiredMixin,CreateView):
@@ -117,8 +153,6 @@ class CampaignUpdateView(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
 		if self.request.user.is_manager == True:
 			return True
 		return False
-
-
 
 class CampaignDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
 	model = Campaign

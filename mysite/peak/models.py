@@ -8,4 +8,12 @@ from django.utils import timezone
 # in case the Campaign status is closed also the status of peak will be closed
 class Peak(models.Model):
 	campaign_id		= models.ForeignKey(campaign_model.Campaign, on_delete=models.CASCADE)
-	name 			= models.CharField(max_length=200)
+	name 			= models.CharField(max_length=200,blank=True,null=True)
+	localize_names  = models.CharField(blank=True,max_length=300,null=True)
+	provenance_org	= models.CharField(blank=True,max_length=300,null=True)
+	lat 			= models.DecimalField(default=0.0,max_digits=22, decimal_places=16)
+	lon 			= models.DecimalField(default=0.0,max_digits=22, decimal_places=16)
+	alt				= models.DecimalField(default=0.0,max_digits=22, decimal_places=16)
+	status		 	= models.BooleanField(default=1)
+	date_posted 	= models.DateField(default=timezone.now)
+	fileJson 		= models.FileField(upload_to='profile_pics')

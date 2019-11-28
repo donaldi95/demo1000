@@ -1,16 +1,50 @@
 {% extends "users/base.html" %}
+{% load leaflet_tags %}
+
 {% block content %}
-    {% for p in peak %}
     <div class="container">
+          
           <article class="media content-section">
             <div class="media-body">
-              <div class="article-metadata">
-                <a class="mr-2" href="#">{{ p.name }}</a>
-              </div>
-            
+              <div class="map">
+                {% if peak %}
+                    {% leaflet_map "main" callback="map_init" %}  
+                {% else %}  
+                    <h1>Add some peaks</h1>  
+                {% endif %}       
+              </div>            
             </div>
           </article>
+    <script type="text/javascript">
+        function map_init(map, options) {
 
-        </div>
-    {% endfor %}
+            //creating a json format for the data we have so we can pass it to map
+
+            var articles = [
+                {% for p in peak %}
+                    {% if not forloop.first %},{% endif %}
+                    {
+                        lat: "{{ p.lat }}",
+                        lon: "{{ p.lon }}"
+                    }
+                {% endfor %}
+                ]
+
+
+            // setting a main point on the map where the map will be focused on oppening
+            map.setView([articles[0]['lat'], articles[1]['lon']], 12);
+
+            //long lat variables
+            var lat, lon;
+
+            // the for loop to display the items on the map
+            for (var i = 0; i < articles.length; i++) {
+                //console.log(articles[i]['lat']);
+                lat  = articles[i]['lat'];
+                lon  = articles[i]['lon']; 
+                L.marker([lat, lon]).addTo(map);   
+            } //end for loop          
+        }//end function map_init()
+    </script>
+    </div>
 {% endblock content %}

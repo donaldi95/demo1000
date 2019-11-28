@@ -1,0 +1,20 @@
+[
+  {
+    "id": 2502864,
+    "provenance": "ElevationDEM3",
+    "elevation": 1938.2801049919876,
+    "longitude": 12.986619000000001,
+    "latitude": 47.69351460000001,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 2532864,
+    "provenance": "ElevationDrrEM3",
+    "elevation": 1338.2801049919876,
+    "longitude": 12.986619000000001,
+    "latitude": 47.69351460000001,
+    "name": null,
+    "localized_names": null
+  }  
+]
