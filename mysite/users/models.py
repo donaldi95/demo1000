@@ -46,11 +46,11 @@ class MyUser(AbstractBaseUser):
         max_length=255,
         unique=True,
     )
-    date_of_birth = models.DateField()
-    username = models.CharField(max_length=200)
-    is_active = models.BooleanField(default=True)
-    is_worker = models.BooleanField(default=False)
-    is_manager = models.BooleanField(default=False)
+    date_of_birth   = models.DateField()
+    username        = models.CharField(max_length=200)
+    is_active       = models.BooleanField(default=True)
+    is_worker       = models.BooleanField(default=False)
+    is_manager      = models.BooleanField(default=False)
 
     objects = MyUserManager()
 

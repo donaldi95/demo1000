@@ -1,7 +1,9 @@
 {% extends "users/base.html" %}
+{% load crispy_forms_tags %}
+
 {% block content %}
     {% for campaign in campaign %}
-    <div class="container">
+      <div class="container">
           <article class="media content-section">
             <img class="rounded-circle article-img" src="{{ campaign.user_id.profile.image.url }}">
             <div class="media-body">
@@ -11,9 +13,22 @@
               </div>
               <h2><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Start Date is: {{ campaign.start_date }}</a></h2>
               <p class="article-content">End date : {{ campaign.end_date }}</p>
+              <p class="article-content">Campaign Status is : {{ campaign.status }}</p>
             </div>
           </article>
-
+          <div class="row">
+            {% if campaign.status == 'started' or campaign.status == 'Started' %}
+              {% ifnotequal campaign.user_id.email request.user.email %}
+               <form method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="form-group">
+                      <input type='hidden' value='{{campaign.pk}}' name='id'>
+                      <button class="btn btn-outline-info" type="submit">Submit</button>
+                  </div>
+                </form> 
+              {% endifnotequal %}
+            {% endif %} 
+          </div>        
         </div>
     {% endfor %}
 {% endblock content %}

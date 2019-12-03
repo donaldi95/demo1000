@@ -1,9 +1,9 @@
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden,HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import FormView
 from django.views import View
 from django.views.generic.detail import SingleObjectMixin
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.views.generic import (
 	ListView, 
 	DetailView, 
@@ -13,10 +13,14 @@ from django.views.generic import (
 	)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.edit import FormMixin
+from django.views.generic.edit import ModelFormMixin
 from .models import Campaign
 from users.models import MyUser
 from peak.models import Peak
+from django.contrib import messages
 from peak.forms import PeakForm
+from user_activities.forms import CampaignEnroll
+from user_activities.models import Campaign_enrollment
 import json
 
 
@@ -39,16 +43,37 @@ def campaign(request):
 
 # class base view
 class CampaignListView(ListView):
-	model = Campaign
-	template_name = 'campaign/campaign.html' # <app>/<model>_<viewtype>.html
+	model 				= Campaign
+	template_name 		= 'campaign/campaign.html' # <app>/<model>_<viewtype>.html
 	context_object_name = 'campaign'
-	ordering = ['-date_posted']
+	ordering 			= ['-date_posted']
 
+
+	#to do here is to clear the form after submit
+	def post(self, request, *args, **kwargs):
+		# When the form is submitted, it will enter here
+		self.object 		= None
+		post 				= Campaign_enrollment()
+
+		#get the campaign enrollment user ids
+		user_enrolled 		= Campaign_enrollment.objects.filter(user_id = request.user)
+		user_enrolled_to 	= Campaign_enrollment.objects.filter(campaign_id = request.POST.get('id'))
+		if user_enrolled_to and user_enrolled:
+			print("is enrollment")
+			return self.get(request, *args, **kwargs)
+		else:
+			print("is not enrollment")
+			post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
+			post.user_id   		= request.user
+			post.save()
+			# Whether the form validates or not, the view will be rendered by get()
+			messages.success(request, 'You have Enrolled')
+			return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': request.POST.get('id')}))
 # a view for individual campaign
 # here i am sticking to django default template just to show the difference
 class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,DetailView):
-	model = Campaign
-	form_class = PeakForm
+	model 		 = Campaign
+	form_class 	 = PeakForm
 
 	def get_success_url(self):
 		return reverse("peak-list", kwargs={"pk": self.object.id})
@@ -56,6 +81,7 @@ class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,Detail
 	def get_context_data(self, **kwargs):
 		context = super(CampaignDetailView, self).get_context_data(**kwargs)
 		context["form"] = self.get_form()
+		context["actualUser"] = self.request.user
 		return context
 
 	def post(self, request, *args, **kwargs):
@@ -69,10 +95,13 @@ class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,Detail
 	def form_valid(self,form):
 		form.fields = self.object
 		#form.instance.name gets the name of the tag field
-		mydata = form.instance.fileJson
-		mydataTemp = json.load(mydata)
-		mydataTemp = json.dumps(mydataTemp)
-		mydata3 = json.loads(mydataTemp)
+		mydata 		= form.instance.fileJson
+		mydataTemp	= json.load(mydata)
+		mydataTemp 	= json.dumps(mydataTemp)
+		mydata3 	= json.loads(mydataTemp)
+
+		#status of the uploaded peak
+		status 		= form.instance.status
 		#print("heeey")
 		#print(mydata3) 
 		for data in mydata3:
@@ -84,10 +113,11 @@ class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,Detail
 			form.instance.lat 				= data['latitude']
 			form.instance.lon				= data['longitude']
 			form.instance.alt				= data['elevation']
-			form.instance.localize_names 	= data['localized_names']
+			form.instance.localize_names 	= 'Null'
 			form.instance.provenance_org 	= data['provenance']
 			form.instance.name 				= data['name']
 			form.instance.campaign_id 		= self.object
+			form.instance.status 			= status
 			form.save()
 		return super().form_valid(form)
 
@@ -172,4 +202,3 @@ class CampaignDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
 		if self.request.user.is_manager == True:
 			return True
 		return False
-

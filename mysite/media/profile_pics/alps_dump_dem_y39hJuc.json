@@ -1,0 +1,47 @@
+[
+  {
+    "id": 2342864,
+    "provenance": "ElevationDEM3",
+    "elevation": 1338.2801049919876,
+    "longitude": 6.986619000000001,
+    "latitude": 47.69351460000001,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 42444864,
+    "provenance": "ElevationDrrEM3",
+    "elevation": 1338.2801049919876,
+    "longitude": 3.986619000000001,
+    "latitude": 44.69351460000001,
+    "name": null,
+    "localized_names": null
+  },
+    {
+    "id": 1142244,
+    "provenance": "OpenStreetMap",
+    "elevation": 1972.0,
+    "longitude": 12.986619000000001,
+    "latitude": 47.69351460000001,
+    "name": "Berchtesgadener Hochthron",
+    "localized_names": null
+  },
+  {
+    "id": 1142249,
+    "provenance": "OpenStreetMap",
+    "elevation": 1874.0,
+    "longitude": 13.020282300000002,
+    "latitude": 47.57571110000001,
+    "name": "Jenner",
+    "localized_names": null
+  },
+  {
+    "id": 1142250,
+    "provenance": "OpenStreetMap",
+    "elevation": 1133.0,
+    "longitude": 8.941801300000002,
+    "latitude": 47.370921700000004,
+    "name": "Hörnli",
+    "localized_names": null
+  }
+]

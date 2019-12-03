@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'djgeojson',
     'leaflet',
     'users.apps.UsersConfig',
+    'user_activities.apps.UserActivitiesConfig',
     'peak.apps.PeakConfig',
     'campaign.apps.CampaignConfig',
     'django.contrib.admin',
