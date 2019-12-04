@@ -59,10 +59,11 @@ class CampaignListView(ListView):
 		user_enrolled 		= Campaign_enrollment.objects.filter(user_id = request.user)
 		user_enrolled_to 	= Campaign_enrollment.objects.filter(campaign_id = request.POST.get('id'))
 		if user_enrolled_to and user_enrolled:
-			print("is enrollment")
-			return self.get(request, *args, **kwargs)
+			#print("is enrollment")
+			messages.warning(request, 'You are already Enrolled')
+			return HttpResponseRedirect(reverse('campaign-home'))
 		else:
-			print("is not enrollment")
+			#print("is not enrollment")
 			post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
 			post.user_id   		= request.user
 			post.save()
@@ -71,7 +72,7 @@ class CampaignListView(ListView):
 			return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': request.POST.get('id')}))
 # a view for individual campaign
 # here i am sticking to django default template just to show the difference
-class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,DetailView):
+class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 	model 		 = Campaign
 	form_class 	 = PeakForm
 
@@ -102,11 +103,10 @@ class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,Detail
 
 		#status of the uploaded peak
 		status 		= form.instance.status
-		#print("heeey")
-		#print(mydata3) 
+		
 		for data in mydata3:
-			print(data['provenance'])
-			print(data['id'])
+			#print(data['provenance'])
+			#print(data['id'])
 			#self.object gets here the Entity we are viweing
 
 			form.instance.id 				= data['id']
@@ -120,23 +120,6 @@ class CampaignDetailView(LoginRequiredMixin,UserPassesTestMixin,FormMixin,Detail
 			form.instance.status 			= status
 			form.save()
 		return super().form_valid(form)
-
-
-	def test_func(self):
-		# getting the campaign that we are currently trying to update
-		campaign = self.get_object()
-		#the first parametter gets the  user
-		if self.request.user == campaign.user_id:
-			return True
-		return False
-
-	def test_func(self):
-		# getting the campaign that we are currently trying to update
-		#the first parametter gets the  user
-		if self.request.user.is_manager == True:
-			return True
-		return False
-
 
 # creatign a new campaign
 class CampaignCreateView(UserPassesTestMixin,LoginRequiredMixin,CreateView):

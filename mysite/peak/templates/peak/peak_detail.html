@@ -1,0 +1,185 @@
+{% extends "users/base.html" %}
+{% load crispy_forms_tags %}
+{% load leaflet_tags %}
+
+{% block content %}
+  <article class="media content-section">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="#"></a>
+        <small class="text-muted"></small>
+      </div>
+      <h2 class="article-title">   Name: {{ peak.name }}</h2>
+    </div>
+  </article>
+    <div class="container">
+       <div class="map">
+                {% if peak %}
+                    {% leaflet_map "main" callback="map_init" %}  
+                {% else %}  
+                    <h1>There are no peaks</h1>  
+                {% endif %}       
+        </div> 
+    </div>
+    <div class="container">
+            <ul id="tabs" class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a id="tab-A" href="#pane-A" class="nav-link active" data-toggle="tab" role="tab">–A–</a>
+                </li>
+                <li class="nav-item">
+                    <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">–B–</a>
+                </li>
+                <li class="nav-item">
+                    <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">–C–</a>
+                </li>
+            </ul>
+
+            <div id="content" class="tab-content" role="tablist">
+                <div id="pane-A" class="card tab-pane fade show active" role="tabpanel" aria-labelledby="tab-A">
+                    <div class="card-header" role="tab" id="heading-A">
+                        <h5 class="mb-0">
+                            <a data-toggle="collapse" href="#collapse-A" data-parent="#content" aria-expanded="true"
+                                aria-controls="collapse-A">
+                                This will be like a table to show the annotation that each user has done on current peak
+                            </a>
+                        </h5>
+                    </div>
+
+                    <div id="collapse-A" class="collapse show" role="tabpanel" aria-labelledby="heading-A">
+                        {% if annotation_list %}
+                            <div class="container">
+                                <div class="row" style="background-color:grey; color: white; font-weight: bold;">
+                                    <div class="col">Worker Name</div>
+                                    <div class="col">Peak Status</div>
+                                    <div class="col">Peak Id</div>
+                                    <div class="col">Evaluate annotation</div>
+                                </div>
+                            {% for o in annotation_list  %}
+                                {% if o.status and o.valued %}
+                                    <div class="row bg-success">
+                                {% else %}
+                                     <div class="row bg-warning">
+                                {% endif %}
+                                    <div class="col">{{o.w_name}}</div>
+                                    <div class="col">{{o.status}}</div>
+                                    <div class="col">{{o.id}}</div>
+
+                                    {% if o.valued != 1 %}
+                                    <div class="col">
+
+                                        <form action='' method='POST' id="checkAnnotation" >
+                                            {% csrf_token %}
+                                            <input type="hidden" name="hidden_id" value="{{o.id}}" id="hidden_id">
+                                                <div>
+                                                  <input type="radio" id="accept" name="evaluateAnnotation" value="True">
+                                                  <label for="accept">Accept</label>
+                                                </div>
+
+                                                <div>
+                                                  <input type="radio" id="reject" name="evaluateAnnotation" value="False">
+                                                  <label for="reject">Reject</label>
+                                                </div>
+
+                                            <div class="form-group">
+                                                <button class="btn btn-outline-info" type="submit">Evaluate</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    {% else %}
+                                        <div class="col"> You have {% if o.status == 1 %} accepted {% else %} rejected {% endif %}</div>
+                                    {% endif %}
+                                </div>
+                            {% endfor%}
+                            </div>>
+                        {% else %}
+                            <a>no data</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
+                    <div class="card-header" role="tab" id="heading-B">
+                        <h5 class="mb-0">
+                            <a class="collapsed" data-toggle="collapse" href="#collapse-B" data-parent="#content" aria-expanded="false"
+                                aria-controls="collapse-B">
+                                Collapsible Group Item B
+                            </a>
+                        </h5>
+                    </div>
+                    <div id="collapse-B" class="collapse" role="tabpanel" aria-labelledby="heading-B">
+                        <div class="card-body">
+                            [Tab content B]
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pane-C" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-C">
+                    <div class="card-header" role="tab" id="heading-C">
+                        <h5 class="mb-0">
+                            <a class="collapsed" data-toggle="collapse" href="#collapse-C" data-parent="#content" aria-expanded="false"
+                                aria-controls="collapse-C">
+                                Collapsible Group Item C
+                            </a>
+                        </h5>
+                    </div>
+                    <div id="collapse-C" class="collapse" role="tabpanel" aria-labelledby="heading-C">
+                        <div class="card-body">
+                            [Tab content C]
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+     <script type="text/javascript">  
+
+        function map_init(map, options) {
+
+
+            var LeafIcon = L.Icon.extend({
+                options: {
+                    iconSize:     [38, 95],
+                    shadowSize:   [50, 64],
+                    iconAnchor:   [22, 94],
+                    shadowAnchor: [4, 62],
+                    popupAnchor:  [-3, -76]
+                }
+            });
+
+
+            var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-green.png'}),
+            redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-red.png'}),
+            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-orange.png'});
+
+            //creating a json format for the data we have so we can pass it to map
+
+            var articles = [
+   
+                    {
+                        lat     :    "{{ peak_lat }}",
+                        lon     :    "{{ peak_lon }}",
+                    }
+            
+                ]
+
+
+            // setting a main point on the map where the map will be focused on oppening
+            map.setView([articles[0]['lat'], articles[0]['lon']], 12);
+
+            //long lat variables
+            var lat, lon;
+
+            // the for loop to display the items on the map
+            for (var i = 0; i < articles.length; i++) {
+                //console.log(articles[i]['lat']);
+                lat  = articles[i]['lat'];
+                lon  = articles[i]['lon'];
+                //console.log(articles[i]['status'].toLowerCase());
+             
+                    L.marker([lat, lon], {icon: greenIcon, title:'green'}).addTo(map).on("click", groupClick);   
+              
+            } //end for loop 
+
+        }//end function map_init()
+    </script>
+{% endblock content %}

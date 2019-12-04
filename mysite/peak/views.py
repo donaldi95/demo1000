@@ -1,17 +1,18 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseForbidden,HttpResponse
+from django.http import HttpResponseForbidden,HttpResponse,HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import (
 	ListView, 
 	CreateView,
+	DetailView, 
 	)
 from django.urls import reverse
 from django.views.generic import FormView
 from django.http import JsonResponse
 from django.core import serializers
-from django.views.generic.edit import FormMixin
-from django.views.generic.edit import ModelFormMixin
+from django.contrib import messages
+from django.views.generic.edit import FormMixin,ModelFormMixin
 from .forms import PeakForm, PeakAnnotationForm
 from campaign.models import Campaign
 from users.models import MyUser
@@ -27,8 +28,13 @@ class PeakListView(FormMixin,ListView):
 	form_class	 		=  PeakAnnotationForm
 
 	def get_context_data(self, **kwargs):
-		context = super(PeakListView, self).get_context_data(**kwargs)
+		context 				= super(PeakListView, self).get_context_data(**kwargs)
 		context["form"] 		= self.get_form()
+
+		self.campaign_id 		= Campaign.objects.filter(user_id= self.request.user,id=self.kwargs['pk'])
+		if self.campaign_id:
+				self.campaign_id = get_object_or_404(Campaign, id=self.kwargs['pk'])
+				context	["peak_of_user"]= Peak.objects.filter(campaign_id = self.campaign_id)
 		context["actualUser"]	= self.request.user
 		return context
 
@@ -44,22 +50,21 @@ class PeakListView(FormMixin,ListView):
 			mydata = json.loads(request.body)
 			#print(mydata['peak_id'])
 			if request.method == 'POST' and mydata['action'] == 'getPeakData':
-				print(mydata['action'])
+				#print(mydata['action'])
 				peaks = list(Peak.objects.filter(id = mydata['peak_id']).values())
 				
 				#print(peaks)
-
 				return JsonResponse({'peaks': peaks},content_type='application/json')
 		
 		else:
-			print('hey')
+			#print('hey')
 			self.object = Peak.objects
 			form = self.get_form()
 			if form.is_valid():
+				messages.success(request, 'Annotation Send, it is waiting for review from Manager')
 				return self.form_valid(form)
 			else:
 				return self.form_invalid(form)
-
 		return JsonResponse({'message': 'it didnt work'},content_type='application/json')
 
 
@@ -67,11 +72,42 @@ class PeakListView(FormMixin,ListView):
 		form.fields = self.object
 		peak = get_object_or_404(Peak, id=form.data['hidden_id'])
 		user = get_object_or_404(MyUser, id=self.request.user.id)
-		print(user)
+		#print(user)
 		#Peak.objects.filter(id=form.data['hidden_id'],slug__in=id["id"])
 		#form.instance.name gets the name of the tag field
 		form.instance.peak_id 		= peak
 		form.instance.user_id 		= user
 		form.instance.name 			= form.data['w_name']
-		#form.save()
+		form.save()
 		return super().form_valid(form)
+
+
+
+class PeakDetailView(DetailView):
+	model 		 	= Peak
+	template_name 	= 'peak/peak_detail.html'
+
+	def get_context_data(self, *args, **kwargs):
+		context 						= super(PeakDetailView, self).get_context_data(*args, **kwargs)
+		context['annotation_list'] 		= json.loads(json.dumps(list(Peak_annotations.objects.filter(peak_id=self.kwargs['pk']).values())))
+		peak							= Peak.objects.get(id=self.kwargs['pk'])
+		context['peak_lat']				= peak.lat
+		context['peak_lon']				= peak.lon
+		context['peak_name']			= peak.name
+		return context
+
+	#to do here is to clear the form after submit
+	def post(self, request, *args, **kwargs):
+		# When the form is submitted, it will enter here
+		self.object 			= None
+		annotation 				= Peak_annotations.objects.get(peak_id = self.kwargs['pk'])
+
+		annotation.status = self.request.POST.get('evaluateAnnotation')
+		annotation.valued = True
+		#post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
+		#post.user_id   	= request.user
+		annotation.save()
+		# Whether the form validates or not, the view will be rendered by get()
+		messages.success(request, 'You reviewd the annotaion')
+
+		return HttpResponseRedirect(reverse('peak-detail', kwargs={'campaign_id':self.kwargs['campaign_id'],'pk': self.kwargs['pk']}))

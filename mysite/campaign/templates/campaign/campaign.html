@@ -17,6 +17,7 @@
             </div>
           </article>
           <div class="row">
+            {% if user.is_authenticated %}
             {% if campaign.status == 'started' or campaign.status == 'Started' %}
               {% ifnotequal campaign.user_id.email request.user.email %}
                <form method="POST" enctype="multipart/form-data">
@@ -28,6 +29,7 @@
                 </form> 
               {% endifnotequal %}
             {% endif %} 
+            {% endif %}
           </div>        
         </div>
     {% endfor %}

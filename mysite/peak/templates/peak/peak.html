@@ -11,7 +11,7 @@
                 {% if peak %}
                     {% leaflet_map "main" callback="map_init" %}  
                 {% else %}  
-                    <h1>Add some peaks</h1>  
+                    <h1>There are no peaks</h1>  
                 {% endif %}       
               </div>            
             </div>
@@ -20,16 +20,18 @@
             <div class="col-md-4">
                 <div id="message-div"></div>
                 <pre id="peak"></pre>
-
-                    <form action='' method='POST' id="submitAnnotation" >
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <input type="hidden" name="hidden_id" value="0" id="hidden_id">
-                        <div class="form-group">
-                            <button class="btn btn-outline-info" type="submit">Create Campaign</button>
-                        </div>
-                    </form>
-                     
+                {% if user.is_authenticated and peak %}
+                     {% if peak_of_user|length < 1  %}
+                        <form action='' method='POST' id="submitAnnotation" >
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <input type="hidden" name="hidden_id" value="0" id="hidden_id">
+                            <div class="form-group">
+                                <button class="btn btn-outline-info" type="submit">Add annotation</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                {% endif %}
             </div>
           </article>
          
@@ -82,7 +84,7 @@
                 lat  = articles[i]['lat'];
                 lon  = articles[i]['lon'];
                 id   = articles[i]['id'];
-                console.log(articles[i]['status'].toLowerCase());
+                //console.log(articles[i]['status'].toLowerCase());
              
                 if(articles[i]['status'].toLowerCase() == 'true'){
                     L.marker([lat, lon], {icon: greenIcon, title:'green', id:id}).addTo(map).on("click", groupClick);   

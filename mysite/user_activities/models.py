@@ -16,5 +16,5 @@ class Peak_annotations(models.Model):
 	#w_localize_names 	= 	models.CharField(blank=True,max_length=300,null=True)
 	#w_provenance_org	= 	models.CharField(blank=True,max_length=1000,null=True)
 	#w_alt				= 	models.DecimalField(default=0.0,max_digits=22, decimal_places=16)
-	#status				=	models.BooleanField(default=False)
-
+	status				=	models.BooleanField(default=False)
+	valued				=	models.BooleanField(default=False)
