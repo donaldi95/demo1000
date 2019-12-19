@@ -17,7 +17,7 @@ from .forms import PeakForm, PeakAnnotationForm
 from campaign.models import Campaign
 from users.models import MyUser
 
-from user_activities.models import Peak_annotations
+from user_activities.models import Peak_annotations,Campaign_enrollment
 from .models import Peak
 import json
 	
@@ -30,7 +30,7 @@ class PeakListView(FormMixin,ListView):
 	def get_context_data(self, **kwargs):
 		context 				= super(PeakListView, self).get_context_data(**kwargs)
 		context["form"] 		= self.get_form()
-
+		context["user_enrolled"]= Campaign_enrollment.objects.filter(user_id = self.request.user.id)
 		self.campaign_id 		= Campaign.objects.filter(user_id= self.request.user,id=self.kwargs['pk'])
 		if self.campaign_id:
 				self.campaign_id = get_object_or_404(Campaign, id=self.kwargs['pk'])
@@ -50,12 +50,16 @@ class PeakListView(FormMixin,ListView):
 			mydata = json.loads(request.body)
 			#print(mydata['peak_id'])
 			if request.method == 'POST' and mydata['action'] == 'getPeakData':
-				#print(mydata['action'])
-				peaks = list(Peak.objects.filter(id = mydata['peak_id']).values())
-				
-				#print(peaks)
-				return JsonResponse({'peaks': peaks},content_type='application/json')
-		
+					#print(mydata['action'])
+					peaks1 = list(Peak.objects.filter(id = mydata['peak_id']).values())
+					data1 = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
+
+					data = {
+						'peaks_json':peaks1, 
+						'annotations':data1,
+						}
+					print(data['annotations'])
+					return JsonResponse({'peaks': data},content_type='application/json')
 		else:
 			#print('hey')
 			self.object = Peak.objects
@@ -69,9 +73,9 @@ class PeakListView(FormMixin,ListView):
 
 
 	def form_valid(self,form):
-		form.fields = self.object
-		peak = get_object_or_404(Peak, id=form.data['hidden_id'])
-		user = get_object_or_404(MyUser, id=self.request.user.id)
+		form.fields 				= self.object
+		peak 						= get_object_or_404(Peak, id=form.data['hidden_id'])
+		user 						= get_object_or_404(MyUser, id=self.request.user.id)
 		#print(user)
 		#Peak.objects.filter(id=form.data['hidden_id'],slug__in=id["id"])
 		#form.instance.name gets the name of the tag field
@@ -102,8 +106,8 @@ class PeakDetailView(DetailView):
 		self.object 			= None
 		annotation 				= Peak_annotations.objects.get(peak_id = self.kwargs['pk'])
 
-		annotation.status = self.request.POST.get('evaluateAnnotation')
-		annotation.valued = True
+		annotation.status 		= self.request.POST.get('evaluateAnnotation')
+		annotation.valued 		= True
 		#post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
 		#post.user_id   	= request.user
 		annotation.save()

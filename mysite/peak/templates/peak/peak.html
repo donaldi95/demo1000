@@ -5,7 +5,7 @@
 {% block content %}
     <div class="container-fluid">
           
-          <article class="media ">
+          <article class="row ">
             <div class="media-body col-md-8">
               <div class="map">
                 {% if peak %}
@@ -15,23 +15,33 @@
                 {% endif %}       
               </div>            
             </div>
-            {% csrf_token %}
 
             <div class="col-md-4">
-                <div id="message-div"></div>
-                <pre id="peak"></pre>
-                {% if user.is_authenticated and peak %}
-                     {% if peak_of_user|length < 1  %}
-                        <form action='' method='POST' id="submitAnnotation" >
-                            {% csrf_token %}
-                            {{ form|crispy }}
-                            <input type="hidden" name="hidden_id" value="0" id="hidden_id">
-                            <div class="form-group">
-                                <button class="btn btn-outline-info" type="submit">Add annotation</button>
-                            </div>
-                        </form>
+                <div class="container-fluid shadow-lg">     
+                    <div id="message-div"></div>
+                    <pre id="datahere">Data goes here</pre>
+                    <pre id="peak"></pre>
+
+
+                    {% if user.is_authenticated and peak and user_enrolled %}
+                        <div id="form-here">
+                         {% if peak_of_user|length < 1  %}
+                            <form action='' method='POST' id="submitAnnotation" >
+                                {% csrf_token %}
+                                {{ form|crispy }}
+                                <input type="hidden" name="hidden_id" value="0" id="hidden_id">
+                                <div class="form-group">
+                                    <button class="btn btn-outline-info" type="submit">Add annotation</button>
+                                </div>
+                            </form>
+                        {% endif %}
+                        </div>
                     {% endif %}
-                {% endif %}
+                </div>
+                <div  class="container-fluid shadow-lg">   
+                    <h3>here will go the annotation</h3>
+                    <div id="annotation"></div>
+                </div>
             </div>
           </article>
          

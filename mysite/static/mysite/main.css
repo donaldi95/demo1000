@@ -82,3 +82,13 @@ a.article-title:hover {
 .account-heading {
   font-size: 2.5rem;
 }
+
+
+/*
+*  MAP
+*/
+
+.map {
+            height: 100%;
+            width: 100%;
+        }

@@ -1,5 +1,5 @@
 function groupClick(event) {
-  
+  console.log("hey");
   var csrftoken     = jQuery("[name=csrfmiddlewaretoken]").val();
   const id          = this.options.id;
   //console.log(id);
@@ -23,12 +23,33 @@ function groupClick(event) {
     contentType:    'application/json; charset=utf-8',
     dataType:       'json',
     success:        function (result) {
-        peak = JSON.parse(JSON.stringify(result.peaks));
-
+      $('#annotation').html("<p></p>");
+        //console.log(result.peaks);
+        peak = JSON.parse(JSON.stringify(result.peaks['peaks_json']));
+       //console.log( 'this is peak '+peak);
         $('#peak').html(
-             "<p class='peaks'> "+ peak[0]['id']+" </p>"
+             "<p class='peaks'> "+ peak[0]['id'] + "<span> Status is : </span>"+  peak[0]['status'] +" </p>"
         );
 
+        annotation = JSON.parse(JSON.stringify(result.peaks['annotations']));
+       // console.log(annotation.length);
+        for (var i = 0; i <= annotation.length-1; i++) {
+          //console.log(i);
+          $('#annotation').append(
+             "<p class='annotaion'> Annotation name : "+ annotation[i]['w_name'] + " <br> <span> Status is : </span>"+  annotation[i]['status'] +" </p>"
+          );
+        }
+
+        /*
+        *check if status is to annotate or not to annotate, 
+        *than we can show the form of annotation 
+        *on click to each peak
+        */
+        if(peak[0]['status']){
+          $("#submitAnnotation").hide();
+        }else{
+          $("#submitAnnotation").show();
+        }
         var mydiv = $('#peak .peaks');
         if(mydiv.length > 1){
             $('#peak .peaks:last').remove();

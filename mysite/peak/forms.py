@@ -20,4 +20,4 @@ class PeakForm(forms.ModelForm):
 class PeakAnnotationForm(forms.ModelForm):
 	class Meta:
 		model 	= 	Peak_annotations
-		fields 	= 	['w_name']
+		fields 	= 	['w_name','valued']

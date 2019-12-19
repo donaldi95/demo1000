@@ -8,6 +8,7 @@ from django.utils import timezone
 # for peaks we decided that the status will be or to be annotated or not to be annotated 
 # in case the Campaign status is closed also the status of peak will be closed
 class Peak(models.Model):
+	peak_id			= models.IntegerField(blank=True)
 	campaign_id		= models.ForeignKey(campaign_model.Campaign, on_delete=models.CASCADE)
 	name 			= models.CharField(max_length=1000,blank=True,null=True)
 	localize_names  = models.CharField(blank=True,max_length=300,null=True)

@@ -20,7 +20,8 @@ from peak.models import Peak
 from django.contrib import messages
 from peak.forms import PeakForm
 from user_activities.forms import CampaignEnroll
-from user_activities.models import Campaign_enrollment
+from django import template
+from user_activities.models import Campaign_enrollment,Peak_annotations
 import json
 
 
@@ -43,33 +44,53 @@ def campaign(request):
 
 # class base view
 class CampaignListView(ListView):
-	model 				= Campaign
-	template_name 		= 'campaign/campaign.html' # <app>/<model>_<viewtype>.html
-	context_object_name = 'campaign'
-	ordering 			= ['-date_posted']
+	model 								= Campaign
+	template_name 						= 'campaign/campaign.html' # <app>/<model>_<viewtype>.html
+	context_object_name 				= 'campaign'
+	ordering 							= ['-date_posted']
 
+	# making a queryset so on the campaign page will not be shown the campaigns the user has already enrolled
+	def get_queryset(self):
+		actualUser_enrolledTo = list(Campaign_enrollment.objects.filter(user_id = self.request.user.id).values())
+		enrolledTo 			  = Campaign_enrollment.objects.filter(user_id = self.request.user.id)
+		campaigns = Campaign.objects.exclude( id__in  = [x['campaign_id_id'] for x in actualUser_enrolledTo])
+		return campaigns
+
+	def get_context_data(self, **kwargs):
+		#print(campaigns)
+		context 						= super(CampaignListView, self).get_context_data(**kwargs)
+		context["actualUser"] 			= self.request.user
+		context["userHasEnrolled"]		= CheckUserEnroll(self.request.GET.get('id'), self.request.user.id)
+		
+		#get the Campaign Enrolled for the logged in user
+		#enrolled 					= list(Campaign_enrollment.objects.filter(user_id = self.request.user.id).values())
+		#enrolled 	= json.dumps(enrolled)
+		#enrolled 	= json.loads(enrolled)
+		return context
 
 	#to do here is to clear the form after submit
 	def post(self, request, *args, **kwargs):
 		# When the form is submitted, it will enter here
-		self.object 		= None
-		post 				= Campaign_enrollment()
+		self.object 					= None
+		post 							= Campaign_enrollment()
 
 		#get the campaign enrollment user ids
-		user_enrolled 		= Campaign_enrollment.objects.filter(user_id = request.user)
-		user_enrolled_to 	= Campaign_enrollment.objects.filter(campaign_id = request.POST.get('id'))
-		if user_enrolled_to and user_enrolled:
+		#user_enrolled 		= CheckUserEnroll(request.user)
+		user_enrolled_to 				= CheckUserEnroll(request.POST.get('id'), request.user )
+		if user_enrolled_to:
 			#print("is enrollment")
 			messages.warning(request, 'You are already Enrolled')
 			return HttpResponseRedirect(reverse('campaign-home'))
 		else:
 			#print("is not enrollment")
-			post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
-			post.user_id   		= request.user
+			post.campaign_id			= Campaign.objects.get(id = request.POST.get('id'))
+			post.user_id   				= request.user
 			post.save()
 			# Whether the form validates or not, the view will be rendered by get()
 			messages.success(request, 'You have Enrolled')
 			return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': request.POST.get('id')}))
+
+
 # a view for individual campaign
 # here i am sticking to django default template just to show the difference
 class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
@@ -80,9 +101,32 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 		return reverse("peak-list", kwargs={"pk": self.object.id})
 
 	def get_context_data(self, **kwargs):
-		context = super(CampaignDetailView, self).get_context_data(**kwargs)
-		context["form"] = self.get_form()
-		context["actualUser"] = self.request.user
+		context 						= super(CampaignDetailView, self).get_context_data(**kwargs)
+		context["form"] 				= self.get_form()
+		context["actualUser"] 			= self.request.user
+		context["userHasEnrolled"]		= CheckUserEnroll(self.object.id, self.request.user.id)
+		peaks							= Peak.objects.filter(campaign_id = self.kwargs['pk']).values()
+		totalPeaksForCampaign 			= peaks.count()
+		#find dthe total non annotated peaks
+		peaks = list(peaks)
+		incr = 0
+		if peaks:
+			for peak in peaks:
+					annotatedPeaks 			= Peak_annotations.objects.filter(peak_id = peak['id']).values('peak_id').distinct()
+					rejectedPeaks 			= Peak_annotations.objects.filter(peak_id = peak['id'],valued=0).values('peak_id').distinct()
+					allPeaks				= Peak_annotations.objects.filter(peak_id = peak['id']).values()
+			if allPeaks:
+				for p in list(allPeaks):
+					for p2 in list(allPeaks):
+						if p['peak_id_id'] == p2['peak_id_id']:
+							if p['w_name'] != p2['w_name']:
+								print('it is')
+								incr += 1
+			context['notAnnotatedPeaks'] 	= totalPeaksForCampaign-annotatedPeaks.count()
+			context['AnnotatedPeaks'] 		= annotatedPeaks.count()
+			context['RejectedPeaks'] 		= rejectedPeaks.count()
+			context['conflix']				= incr
+		#print(incr)
 		return context
 
 	def post(self, request, *args, **kwargs):
@@ -105,19 +149,17 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 		status 		= form.instance.status
 		
 		for data in mydata3:
-			#print(data['provenance'])
-			#print(data['id'])
 			#self.object gets here the Entity we are viweing
 
-			form.instance.id 				= data['id']
-			form.instance.lat 				= data['latitude']
-			form.instance.lon				= data['longitude']
-			form.instance.alt				= data['elevation']
-			form.instance.localize_names 	= 'Null'
-			form.instance.provenance_org 	= data['provenance']
-			form.instance.name 				= data['name']
-			form.instance.campaign_id 		= self.object
-			form.instance.status 			= status
+			form.instance.peak_id 		= data['id']
+			form.instance.lat 			= data['latitude']
+			form.instance.lon			= data['longitude']
+			form.instance.alt			= data['elevation']
+			form.instance.localize_names= data['localized_names']
+			form.instance.provenance_org= data['provenance']
+			form.instance.name 			= data['name']
+			form.instance.campaign_id 	= self.object
+			form.instance.status 		= status
 			form.save()
 		return super().form_valid(form)
 
@@ -185,3 +227,18 @@ class CampaignDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
 		if self.request.user.is_manager == True:
 			return True
 		return False
+
+
+
+def CheckUserEnroll(campaign,user):
+	hasEnrolled = Campaign_enrollment.objects.filter(campaign_id = campaign,user_id=user)
+	if hasEnrolled:
+		return hasEnrolled
+	return False
+
+
+
+register = template.Library()
+@register.filter(name='ifUserEnrolled')
+def ifUserEnrolled(value, arg):
+    return True

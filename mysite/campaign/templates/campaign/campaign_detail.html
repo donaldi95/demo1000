@@ -29,7 +29,7 @@
                     <a id="tab-A" href="#pane-A" class="nav-link active" data-toggle="tab" role="tab">–A–</a>
                 </li>
                 <li class="nav-item">
-                    <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">–B–</a>
+                    <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">–Campaign Details–</a>
                 </li>
                 <li class="nav-item">
                     <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">–C–</a>
@@ -71,13 +71,40 @@
                         <h5 class="mb-0">
                             <a class="collapsed" data-toggle="collapse" href="#collapse-B" data-parent="#content" aria-expanded="false"
                                 aria-controls="collapse-B">
-                                Collapsible Group Item B
+                                Check the details for peaks
                             </a>
                         </h5>
                     </div>
-                    <div id="collapse-B" class="collapse" role="tabpanel" aria-labelledby="heading-B">
-                        <div class="card-body">
-                            [Tab content B]
+                    <div role="tabpanel" aria-labelledby="heading-B">
+                        <div class="row ">
+                          <div class="col bg-success">
+                            Not Annotated Peaks  
+                          </div>
+                          <div class="col bg-warning">
+                            Nr of peaks in the annotated state (1 or more annotations) 
+                          </div>
+                          <div class="col bg-danger">
+                            Nr of peaks with at least 1 or more rejected annotations
+                          </div>
+                          <div class="col bg-danger">
+                            Number of conflicts (see definition below)
+                          </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" aria-labelledby="heading-B">
+                        <div class="row">
+                          <div class="col">
+                            {{notAnnotatedPeaks}}
+                          </div>
+                          <div class="col">
+                            {{AnnotatedPeaks}}
+                          </div>
+                          <div class="col">
+                            {{RejectedPeaks}}
+                          </div>
+                          <div class="col">
+                            {{conflix}}
+                          </div>
                         </div>
                     </div>
                 </div>
