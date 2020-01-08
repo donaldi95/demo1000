@@ -105,6 +105,7 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 		context["form"] 				= self.get_form()
 		context["actualUser"] 			= self.request.user
 		context["userHasEnrolled"]		= CheckUserEnroll(self.object.id, self.request.user.id)
+		context["campaign_peaks"] 		= Peak.objects.filter(campaign_id = self.kwargs['pk']).values()
 		peaks							= Peak.objects.filter(campaign_id = self.kwargs['pk']).values()
 		totalPeaksForCampaign 			= peaks.count()
 		#find dthe total non annotated peaks
@@ -120,7 +121,7 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 					for p2 in list(allPeaks):
 						if p['peak_id_id'] == p2['peak_id_id']:
 							if p['w_name'] != p2['w_name']:
-								print('it is')
+								#print('it is')
 								incr += 1
 			context['notAnnotatedPeaks'] 	= totalPeaksForCampaign-annotatedPeaks.count()
 			context['AnnotatedPeaks'] 		= annotatedPeaks.count()

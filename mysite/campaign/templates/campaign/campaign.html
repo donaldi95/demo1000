@@ -20,7 +20,7 @@
               </article>
               <div class="row">  
                 {% if user.is_authenticated %}
-                {% if campaign.status == 'started' or campaign.status == 'Started' %}
+                {% if campaign.status == 'started' or campaign.status == 'Start' %}
                   {% ifnotequal campaign.user_id.email request.user.email %}
                    <form method="POST" enctype="multipart/form-data">
                       {% csrf_token %}

@@ -25,9 +25,11 @@ def profile(request):
     actualUser_enrolledTo = list(Campaign_enrollment.objects.filter(user_id = request.user.id).values())
     enrolledTo            = Campaign_enrollment.objects.filter(user_id = request.user.id)
     campaigns             = Campaign.objects.filter( id__in  = [x['campaign_id_id'] for x in actualUser_enrolledTo])
-    print(campaigns)
+    #print(campaigns)
     logged_in_user_posts  = Campaign.objects.filter(user_id=request.user)
     return render(request, 'users/profile.html', {'campaigns': logged_in_user_posts,'campaigns_enrolled':campaigns})
 
+def index(request):
+    return render(request,'users/index.html')
 #get the campaign for each user
 

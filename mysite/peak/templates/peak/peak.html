@@ -19,7 +19,7 @@
             <div class="col-md-4">
                 <div class="container-fluid shadow-lg">     
                     <div id="message-div"></div>
-                    <pre id="datahere">Data goes here</pre>
+                    <pre id="datahere"> <h1> Peak Information </h1></pre>
                     <pre id="peak"></pre>
 
 
@@ -51,7 +51,6 @@
 
         function map_init(map, options) {
 
-
             var LeafIcon = L.Icon.extend({
                 options: {
                     iconSize:     [38, 95],
@@ -62,6 +61,8 @@
                 }
             });
 
+            map.locate({setView: true, maxZoom: 16});
+            map.on('locationfound', onLocationFound);
 
             var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-green.png'}),
             redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-red.png'}),
@@ -104,6 +105,13 @@
             } //end for loop  
 
         }//end function map_init()
+
+        function onLocationFound(e) {
+            var radius = e.accuracy;
+            L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
+            L.circle(e.latlng, radius).addTo(map);
+        }
+
     </script>
 
     </div>

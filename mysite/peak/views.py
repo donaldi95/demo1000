@@ -21,7 +21,7 @@ from user_activities.models import Peak_annotations,Campaign_enrollment
 from .models import Peak
 import json
 	
-class PeakListView(FormMixin,ListView):
+class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 	model 				=  Peak
 	template_name 		= 'peak/peak.html' # <app>/<model>_<viewtype>.html
 	context_object_name = 'peak'
@@ -61,33 +61,35 @@ class PeakListView(FormMixin,ListView):
 					print(data['annotations'])
 					return JsonResponse({'peaks': data},content_type='application/json')
 		else:
-			#print('hey')
 			self.object = Peak.objects
 			form = self.get_form()
-			if form.is_valid():
-				messages.success(request, 'Annotation Send, it is waiting for review from Manager')
-				return self.form_valid(form)
+			if form.data['hidden_id'] != '0':
+				if form.is_valid():
+					messages.success(request, 'Annotation Send, it is waiting for review from Manager')
+					return self.form_valid(form)
+				else:
+					messages.warning(request, 'Something went Wrong')
+					return self.form_invalid(form)
 			else:
-				return self.form_invalid(form)
-		return JsonResponse({'message': 'it didnt work'},content_type='application/json')
+				messages.warning(request, 'You need to select an Peak to annotate')
+				return HttpResponseRedirect(reverse('peak-list', kwargs={'pk':self.kwargs['pk']}))
+		return  HttpResponseRedirect(reverse('peak-list', kwargs={'pk':self.kwargs['pk']}))
 
 
 	def form_valid(self,form):
-		form.fields 				= self.object
-		peak 						= get_object_or_404(Peak, id=form.data['hidden_id'])
-		user 						= get_object_or_404(MyUser, id=self.request.user.id)
-		#print(user)
-		#Peak.objects.filter(id=form.data['hidden_id'],slug__in=id["id"])
-		#form.instance.name gets the name of the tag field
-		form.instance.peak_id 		= peak
-		form.instance.user_id 		= user
-		form.instance.name 			= form.data['w_name']
+		form.fields 				 = self.object
+		peak 						 = get_object_or_404(Peak, id=form.data['hidden_id'])
+		user 						 = get_object_or_404(MyUser, id=self.request.user.id)
+		form.instance.peak_id 		 = peak
+		form.instance.user_id 		 = user
+		form.instance.name 			 = form.data['w_name']
+		form.instance.localize_names = form.data['localized_names']
 		form.save()
 		return super().form_valid(form)
 
 
 
-class PeakDetailView(DetailView):
+class PeakDetailView(LoginRequiredMixin,DetailView):
 	model 		 	= Peak
 	template_name 	= 'peak/peak_detail.html'
 

@@ -1,4 +1,5 @@
 {% extends "users/base.html" %}
+{% load leaflet_tags %}
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -32,20 +33,13 @@
                     <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">–Campaign Details–</a>
                 </li>
                 <li class="nav-item">
-                    <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">–C–</a>
+                    <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">–PEAKS FOR THIS CAMPAIGN–</a>
                 </li>
             </ul>
 
             <div id="content" class="tab-content" role="tablist">
                 <div id="pane-A" class="card tab-pane fade show active" role="tabpanel" aria-labelledby="tab-A">
-                    <div class="card-header" role="tab" id="heading-A">
-                        <h5 class="mb-0">
-                            <a data-toggle="collapse" href="#collapse-A" data-parent="#content" aria-expanded="true"
-                                aria-controls="collapse-A">
-                                Collapsible Group Item A
-                            </a>
-                        </h5>
-                    </div>
+         
                     <div id="collapse-A" class="collapse show" role="tabpanel" aria-labelledby="heading-A">
                     {% if campaign.user_id == actualUser %}
                         <div class="card-body">
@@ -120,10 +114,72 @@
                     </div>
                     <div id="collapse-C" class="collapse" role="tabpanel" aria-labelledby="heading-C">
                         <div class="card-body">
-                            [Tab content C]
+                              {% if campaign_peaks %}
+                                  {% leaflet_map "main" callback="map_init" %}  
+                              {% else %}  
+                                  <h1>There are no peaks</h1>  
+                              {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
+
+      <script type="text/javascript">  
+
+        function map_init(map, options) {
+
+            var LeafIcon = L.Icon.extend({
+                options: {
+                    iconSize:     [38, 95],
+                    shadowSize:   [50, 64],
+                    iconAnchor:   [22, 94],
+                    shadowAnchor: [4, 62],
+                    popupAnchor:  [-3, -76]
+                }
+            });
+
+            var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-green.png'}),
+            redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-red.png'}),
+            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-orange.png'});
+
+            //creating a json format for the data we have so we can pass it to map
+
+            var articles = [
+                {% for p in campaign_peaks %}
+                    {% if not forloop.first %},{% endif %}
+                    {
+                        lat     :    "{{ p.lat }}",
+                        lon     :    "{{ p.lon }}",
+                        status  :    "{{ p.status }}",
+                        id      :    "{{ p.id     }}",
+                    }
+                {% endfor %}
+                ]
+
+
+            // setting a main point on the map where the map will be focused on oppening
+            map.setView([articles[0]['lat'], articles[1]['lon']], 3);
+
+            //long lat variables
+            var lat, lon;
+
+            // the for loop to display the items on the map
+            for (var i = 0; i < articles.length; i++) {
+                //console.log(articles[i]['lat']);
+                lat  = articles[i]['lat'];
+                lon  = articles[i]['lon'];
+                id   = articles[i]['id'];
+                //console.log(articles[i]['status'].toLowerCase());
+             
+                if(articles[i]['status'].toLowerCase() == 'true'){
+                    L.marker([lat, lon], {icon: greenIcon, title:'green', id:id}).addTo(map).on("click", groupClick);   
+                }else{
+                    L.marker([lat, lon], {icon: redIcon, title:'red',  id:id}).addTo(map).on("click", groupClick);
+                }
+            } //end for loop  
+
+        }//end function map_init()
+
+    </script>
     </div>
 {% endblock content %}
