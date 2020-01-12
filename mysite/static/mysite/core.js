@@ -1,5 +1,4 @@
 function groupClick(event) {
-  console.log("hey");
   var csrftoken     = jQuery("[name=csrfmiddlewaretoken]").val();
   const id          = this.options.id;
   //console.log(id);
@@ -24,7 +23,74 @@ function groupClick(event) {
     dataType:       'json',
     success:        function (result) {
       $('#annotation').html("<p></p>");
-        //console.log(result.peaks);
+        
+        peak = JSON.parse(JSON.stringify(result.peaks['peaks_json']));
+        console.log(peak);
+       //console.log( 'this is peak '+peak);
+        $('#peak').html(
+             "<p class='peaks'> Peak Name : "+ peak[0]['name'] + "<br><span> Localize Name is :"+  peak[0]['localize_names'] +" </span> <br> Lat : "+ peak[0]['lat'] + " Lon : "+ peak[0]['lon']+"<br> Date Posted : "+ peak[0]['date_posted'] +" </p>" 
+        );
+
+        annotation = JSON.parse(JSON.stringify(result.peaks['annotations']));
+       // console.log(annotation.length);
+        for (var i = 0; i <= annotation.length-1; i++) {
+          //console.log(i);
+          $('#annotation').append(
+             "<p class='annotaion'> Annotation name : "+ annotation[i]['w_name'] + " <br> <span> Status is : </span>"+  annotation[i]['status'] +" </p>"
+          );
+        }
+
+        /*
+        *check if status is to annotate or not to annotate, 
+        *than we can show the form of annotation 
+        *on click to each peak
+        */
+        if(peak[0]['status']){
+          $("#submitAnnotation").show();
+        }else{
+          $("#submitAnnotation").hide();
+        }
+        var mydiv = $('#peak .peaks');
+        if(mydiv.length > 1){
+            $('#peak .peaks:last').remove();
+        }
+        $('#hidden_id').val(peak[0]['id']);
+    },
+    error: function(result) {
+        $("#message-div").html("Ajax request for get data is not done.");
+    } 
+  });
+
+}
+
+
+
+function addAnnotation(event) {
+  var csrftoken     = jQuery("[name=csrfmiddlewaretoken]").val();
+  const id          = this.options.id;
+  //console.log(id);
+  function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+  $.ajax({
+    url     :            window.location.pathname,
+    type    :           'POST',
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    },
+    data:          JSON.stringify( {
+      csrfmiddlewaretoken     : csrftoken,
+      peak_id                 : id, 
+      action                  : 'getPeakData',
+    }),
+    contentType:    'application/json; charset=utf-8',
+    dataType:       'json',
+    success:        function (result) {
+      $('#annotation').html("<p></p>");
+        
         peak = JSON.parse(JSON.stringify(result.peaks['peaks_json']));
         console.log(peak);
        //console.log( 'this is peak '+peak);
@@ -69,8 +135,6 @@ $(function() {
 });
 
 /* counter */
-
-
 (function ($) {
   $.fn.countTo = function (options) {
     options = options || {};
@@ -168,4 +232,39 @@ jQuery(function ($) {
   options = $.extend({}, options || {}, $this.data('countToOptions') || {});
   $this.countTo(options);
   }
+});
+
+
+/************
+*
+*
+*******403 page
+*
+*/
+
+var root = document.documentElement;
+var eyef = document.getElementById('eyef');
+var cx = document.getElementById("eyef").getAttribute("cx");
+var cy = document.getElementById("eyef").getAttribute("cy");
+
+document.addEventListener("mousemove", evt => {
+  let x = evt.clientX / innerWidth;
+  let y = evt.clientY / innerHeight;
+
+  root.style.setProperty("--mouse-x", x);
+  root.style.setProperty("--mouse-y", y);
+  
+  cx = 115 + 30 * x;
+  cy = 50 + 30 * y;
+  eyef.setAttribute("cx", cx);
+  eyef.setAttribute("cy", cy);
+  
+});
+
+document.addEventListener("touchmove", touchHandler => {
+  let x = touchHandler.touches[0].clientX / innerWidth;
+  let y = touchHandler.touches[0].clientY / innerHeight;
+
+  root.style.setProperty("--mouse-x", x);
+  root.style.setProperty("--mouse-y", y);
 });

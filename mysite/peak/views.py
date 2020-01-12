@@ -31,9 +31,10 @@ class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 		context 				= super(PeakListView, self).get_context_data(**kwargs)
 		context["form"] 		= self.get_form()
 		context["user_enrolled"]= Campaign_enrollment.objects.filter(user_id = self.request.user.id)
+		context["status"]       = list(Campaign.objects.filter(id=self.kwargs['pk']).values('status'))
 		self.campaign_id 		= Campaign.objects.filter(user_id= self.request.user,id=self.kwargs['pk'])
 		if self.campaign_id:
-				self.campaign_id = get_object_or_404(Campaign, id=self.kwargs['pk'])
+				self.campaign_id 		= get_object_or_404(Campaign, id=self.kwargs['pk'])
 				context	["peak_of_user"]= Peak.objects.filter(campaign_id = self.campaign_id)
 		context["actualUser"]	= self.request.user
 		return context
@@ -46,19 +47,18 @@ class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 		return Peak.objects.filter(campaign_id=self.campaign_id)
 
 	def post(self, request, pk, *args, **kwargs):
-		if request.is_ajax():
+		if self.request.is_ajax():
 			mydata = json.loads(request.body)
-			#print(mydata['peak_id'])
 			if request.method == 'POST' and mydata['action'] == 'getPeakData':
 					#print(mydata['action'])
 					peaks1 = list(Peak.objects.filter(id = mydata['peak_id']).values())
-					data1 = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
-
+					data1  = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
+					print(peaks1)
 					data = {
 						'peaks_json':peaks1, 
 						'annotations':data1,
 						}
-					print(data['annotations'])
+					#print(data['annotations'])
 					return JsonResponse({'peaks': data},content_type='application/json')
 		else:
 			self.object = Peak.objects
@@ -68,7 +68,7 @@ class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 					messages.success(request, 'Annotation Send, it is waiting for review from Manager')
 					return self.form_valid(form)
 				else:
-					messages.warning(request, 'Something went Wrong')
+					messages.warning(request, 'Annotation could not be send')
 					return self.form_invalid(form)
 			else:
 				messages.warning(request, 'You need to select an Peak to annotate')

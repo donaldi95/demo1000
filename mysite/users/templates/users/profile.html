@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
    
-    <div class="content-section">
+    <div class="content-section add-margin-top">
       <div class="media">
         <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
         <div class="media-body">
@@ -13,18 +13,27 @@
            <p class="text-secondary">User is Worker {{ user.is_worker }}</p>
         </div>
       </div>
+    </div>
 
       <div class="container">
             <ul id="tabs" class="nav nav-tabs" role="tablist">
+
                 <li class="nav-item">
                     <a id="tab-A" href="#pane-A" class="nav-link active" data-toggle="tab" role="tab">– Your Annotations –</a>
                 </li>
                 <li class="nav-item">
                     <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">–Campaigns Enrolled–</a>
                 </li>
-                <li class="nav-item">
-                    <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">–C–</a>
-                </li>
+
+                {% if user.is_manager %}
+                  <li class="nav-item">
+                      <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">
+                          
+                            Your Campaigns
+                      </a>
+                  </li>
+                {% endif %}
+
             </ul>
 
 
@@ -40,20 +49,11 @@
                     </div>
                     <div id="collapse-A" class="collapse show" role="tabpanel" aria-labelledby="heading-A">
                         <div class="card-body">
-                          {% if campaigns %}
-                            {% for campaign in campaigns %}
-                                <article class="media content-section">
-                                        <img class="rounded-circle article-img" src="{{campaign.user_id.profile.image.url }}">
-                                        <div class="media-body">
-                                          <div class="article-metadata">
-                                            <h3><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Campaign Name: {{ campaign.name }}</a></h3>
-                                            <a class="mr-2" href="#">{{ campaign.user_id }}</a>
-                                            <small class="text-muted">Date Posted : {{ campaign.date_posted|date:"F d, Y" }}</small>
-                                          </div>
-                                        
-                                        </div>
-                                  </article>
-                            {% endfor %}
+                          {% if annotations %}
+
+                          {% else %}
+                            You have not yet annotated any peak, check your enrolled campaigs if respective worker has published any peak. <br>
+                            <a href="{% url 'campaign-home' %}">Check All Published Campaigns </a>
                           {% endif %}
                           
                         </div>
@@ -83,24 +83,32 @@
                   
                 </div>
 
-                <div id="pane-C" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-C">
-                    <div class="card-header" role="tab" id="heading-C">
-                        <h5 class="mb-0">
-                            <a class="collapsed" data-toggle="collapse" href="#collapse-C" data-parent="#content" aria-expanded="false"
-                                aria-controls="collapse-C">
-                                Collapsible Group Item C
-                            </a>
-                        </h5>
-                    </div>
-                    <div id="collapse-C" class="collapse" role="tabpanel" aria-labelledby="heading-C">
-                        <div class="card-body">
-                            [Tab content C]
-                        </div>
-                    </div>
-                </div>
+
+                {% if user.is_manager %}
+                  <div id="pane-C" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-C">
+                      <div class="card-header" role="tab" id="heading-C">
+                          <h5 class="mb-0">
+                                {% if campaigns %}
+                                  {% for campaign in campaigns %}
+                                      <article class="media content-section">
+                                              <img class="rounded-circle article-img" src="{{campaign.user_id.profile.image.url }}">
+                                              <div class="media-body">
+                                                <div class="article-metadata">
+                                                  <h3><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Campaign Name: {{ campaign.name }}</a></h3>
+                                                  <a class="mr-2" href="#">{{ campaign.user_id }}</a>
+                                                  <small class="text-muted">Date Posted : {{ campaign.date_posted|date:"F d, Y" }}</small>
+                                                </div>
+                                              
+                                              </div>
+                                        </article>
+                                  {% endfor %}
+                                {% endif %}
+                          </h5>
+                      </div>
+                  </div>
+                {% endif %}
             </div>
         </div>
       <!-- FORM HERE -->
-    </div>
 
 {% endblock content %}

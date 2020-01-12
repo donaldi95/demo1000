@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1142289,
+    "provenance": "OpenStreetMap",
+    "elevation": 3506.0,
+    "longitude": 6.7679631,
+    "latitude": 45.1597973,
+    "name": "Aiguille de Scolette",
+    "localized_names": [
+      ["fr", "Aiguille de Scolette"],
+      ["it", "Pierre Menue"]
+    ]
+  },{
+    "id": 1142244,
+    "provenance": "OpenStreetMap",
+    "elevation": 1972.0,
+    "longitude": 12.986619000000001,
+    "latitude": 47.69351460000001,
+    "name": "Berchtesgadener Hochthron",
+    "localized_names": null
+  },
+  {
+    "id": 1142249,
+    "provenance": "OpenStreetMap",
+    "elevation": 1874.0,
+    "longitude": 13.020282300000002,
+    "latitude": 47.57571110000001,
+    "name": "Jenner",
+    "localized_names": null
+  },
+  {
+    "id": 1142250,
+    "provenance": "OpenStreetMap",
+    "elevation": 1133.0,
+    "longitude": 8.941801300000002,
+    "latitude": 47.370921700000004,
+    "name": "Hornli",
+    "localized_names": null
+  },
+  {
+    "id": 1142284,
+    "provenance": "OpenStreetMap",
+    "elevation": 3514.0,
+    "longitude": 6.337478900000001,
+    "latitude": 45.127703000000004,
+    "name": "Aiguille Centrale d'Arves",
+    "localized_names": null
+  },
+  {
+    "id": 1142285,
+    "provenance": "OpenStreetMap",
+    "elevation": 3412.0,
+    "longitude": 6.8567381,
+    "latitude": 44.547586800000005,
+    "name": "Aiguille de Chambeyron",
+    "localized_names": null
+  },
+  {
+    "id": 1142286,
+    "provenance": "OpenStreetMap",
+    "elevation": 3561.0,
+    "longitude": 6.6240193000000005,
+    "latitude": 45.2813645,
+    "name": "Aiguille de Peclet",
+    "localized_names": null
+  }
+]

@@ -20,22 +20,22 @@
                 <div class="container-fluid shadow-lg">     
                     <div id="message-div"></div>
                     <pre id="datahere"> <h1> Peak Information </h1></pre>
+                     {% csrf_token %}
                     <pre id="peak"></pre>
-
-
-                    {% if user.is_authenticated and peak and user_enrolled %}
-                        <div id="form-here">
-                         {% if peak_of_user|length < 1  %}
-                            <form action='' method='POST' id="submitAnnotation" >
-                                {% csrf_token %}
-                                {{ form|crispy }}
-                                <input type="hidden" name="hidden_id" value="0" id="hidden_id">
-                                <div class="form-group">
-                                    <button class="btn btn-outline-info" type="submit">Add annotation</button>
-                                </div>
-                            </form>
+                    {% if status.0.status != "Closed" %}
+                        {% if user.is_authenticated and peak and user_enrolled %}
+                            <div id="form-here">
+                             {% if peak_of_user|length < 1  %}
+                                <form action='' method='POST' id="submitAnnotation" >
+                                    {{ form|crispy }}
+                                    <input type="hidden" name="hidden_id" value="0" id="hidden_id">
+                                    <div class="form-group">
+                                        <button class="btn btn-outline-info" type="submit">Add annotation</button>
+                                    </div>
+                                </form>
+                            {% endif %}
+                            </div>
                         {% endif %}
-                        </div>
                     {% endif %}
                 </div>
                 <div  class="container-fluid shadow-lg">   

@@ -23,6 +23,7 @@ from user_activities.forms import CampaignEnroll
 from django import template
 from user_activities.models import Campaign_enrollment,Peak_annotations
 import json
+from django.http import Http404
 
 
 # Create your views here.
@@ -148,10 +149,11 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 
 		#status of the uploaded peak
 		status 		= form.instance.status
-		
+		peak_exists = []
+		i = 0
 		for data in mydata3:
 			#self.object gets here the Entity we are viweing
-
+			form.instance.id 			= None
 			form.instance.peak_id 		= data['id']
 			form.instance.lat 			= data['latitude']
 			form.instance.lon			= data['longitude']
@@ -161,8 +163,22 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 			form.instance.name 			= data['name']
 			form.instance.campaign_id 	= self.object
 			form.instance.status 		= status
-			form.save()
-		return super().form_valid(form)
+
+			peak_check = Peak.objects.filter(peak_id = data['id'],campaign_id= self.object).values()
+			if peak_check:
+				#peak_exists = peak_exists + data
+				print("exists")
+			else:
+				print("IN")
+				i = i + 1
+				form.save()
+
+			print(peak_check)
+		if i > 0:
+			return super().form_valid(form)
+		else:
+			messages.error(self.request,"The file you tried to add has all the Peaks already registered ")
+			return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': self.object.id}))
 
 # creatign a new campaign
 class CampaignCreateView(UserPassesTestMixin,LoginRequiredMixin,CreateView):

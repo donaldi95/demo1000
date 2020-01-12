@@ -12,7 +12,9 @@
 
         {% if campaign.user_id == actualUser  %}
           <div>
+            {% if campaign.status != "Closed" %}
             <a class="btn btn-secondarysm mt-1 mb-1" href="{% url 'campaign-update' object.id %}">Update</a>
+            {% endif %}
             <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'campaign-delete' object.id %}">Delete</a>
           </div>
         {% endif %}
@@ -25,6 +27,7 @@
     </div>
   </article>
     <div class="container">
+      
             <ul id="tabs" class="nav nav-tabs" role="tablist">
                 <li class="nav-item">
                     <a id="tab-A" href="#pane-A" class="nav-link active" data-toggle="tab" role="tab">–A–</a>
@@ -41,7 +44,7 @@
                 <div id="pane-A" class="card tab-pane fade show active" role="tabpanel" aria-labelledby="tab-A">
          
                     <div id="collapse-A" class="collapse show" role="tabpanel" aria-labelledby="heading-A">
-                    {% if campaign.user_id == actualUser %}
+                    {% if campaign.user_id == actualUser and campaign.status != "Closed" %}
                         <div class="card-body">
                                  <form method="POST" enctype="multipart/form-data">
                                       {% csrf_token %}
@@ -54,7 +57,9 @@
                                       </div>
                                   </form>  
                     {% else %}
-                      <h2>Hey {{user}}</h2>
+                      {% if campaign.status == "Closed" %}
+                        <p>Campaign is closed</p>
+                      {% endif %}
                     {% endif %}
                         </div>
                     </div>

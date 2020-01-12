@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.conf.urls import url
 from django.conf.urls.static import static
 from users import views as users_views
+from django.views.static import serve
 from django.contrib.auth import views as auth_views
+from django.conf.urls import handler404, handler500
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,15 +29,17 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='users/logout.html'), name='logout'),
     path('profile/', users_views.profile, name='profile'),
+    url(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
+    url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     path('', include('users.urls')),
     path('', include('campaign.urls')),
     path('', include('peak.urls')),
 ]
 
-
+handler404 = 'users.views.error_404'
+handler500 = 'users.views.error_500'
+handler403 = 'users.views.error_403'
 
 # static url
-
-
 if settings.DEBUG:
 	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
