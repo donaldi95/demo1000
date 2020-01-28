@@ -1,7 +1,8 @@
 {% extends "users/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <div class="content-section">
+<div class="content-section login-register-wrapper">
+    <div class="login-register">
         <form method="POST">
             {% csrf_token %}
             <fieldset class="form-group">
@@ -12,10 +13,11 @@
                 <button class="btn btn-outline-info" type="submit">Login Up</button>
             </div>
         </form>
-        <div class="border-top pt-3">
+        <div class="border-top form-footer pt-3">
             <small class="text-muted">
                 Already Have An Account? <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
             </small>
         </div>
     </div>
+</div>
 {% endblock content %}

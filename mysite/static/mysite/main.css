@@ -1,4 +1,4 @@
-body {
+body{
   background: #fafafa;
   color: #333333;
   margin-top: 0rem !important;
@@ -8,11 +8,14 @@ h1, h2, h3, h4, h5, h6 {
   color: #444444;
 }
 
+.btn{background-color:#173e43 !important; color:white !important; border-radius: 0;border: none; opacity: 0.89;}
+.btn:hover{background-color:#fff !important; color:#ffcb39 !important; border:1px solid #ffcb39;  opacity:1;}
+
 ul {
   margin: 0;
 }
 .add-margin-top{margin-top: 70px !important;}
-.main-wrapper{margin-top:55px !important;}
+.main-wrapper{margin-top:55px !important; position: absolute;}
 .container-fluid{padding-right: 0px !important; padding-left:0px !important;}
 
 .full-screen {
@@ -331,6 +334,7 @@ html, body{
     
 }
 
+.navbar{background-color:#4a6164;}
 .custom-navbar{
     padding-top: 15px;
 }
@@ -594,3 +598,69 @@ svg {
     fill: darkred;
   }
 }
+
+/* PAGE CAMPAIGN */
+.noMoment{display: none;}
+#hidePeakEvaluationForm{display: none;}
+#annotationsEvaluated,#annotationsNotEvaluated{
+  padding: 0px !important;
+}
+.annotationsTabs .nav-link{color: #404c4b;}
+.annotationsTabs .nav-tabs,.annotationsTabs .nav-tabs .nav-link{border: none !important;}
+.annotationsTabs .nav-tabs .nav-link{border-top-left-radius:0px !important; border-top-right-radius:0px !important;}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {color:#fff; background-color:#173e43; border-color: none; }
+.annotationsTabs .table-dark{background-color:#173e43; }
+.annotationsTabs .table-dark td,.annotationsTabs .table-dark th,.annotationsTabs .table-dark thead th { border-color:#b5bcc336;}
+
+/* SIDEBAR */
+.left-sidebar{ height: 100%;
+  position: fixed;}
+.tab-sidebar-content{float: left; padding: 0px;}
+.tab-sidebar-content-right{float: right;}
+.nav-sidebar { width: 16%; padding: 30px 0; border-right: 1px solid#ddd; background:#173e43; }
+.nav-sidebar ul li{float: left; padding: 15px 0; width: 100%;}
+.nav-sidebar a {
+    color: #fff;
+    -webkit-transition: all 0.08s linear;
+    -moz-transition: all 0.08s linear;
+    -o-transition: all 0.08s linear;
+    transition: all 0.08s linear;
+}
+.nav-sidebar ul li  a.active {  cursor: default; background-color: #fff; color: #ffcb39; padding: 10px;}
+.nav-sidebar .active a:hover {  background-color: #E50000;  }
+.nav-sidebar .text-overflow a,
+.nav-sidebar .text-overflow .media-body {
+    white-space: nowrap;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis; 
+}
+
+
+/* add peaks form */
+.addPeak{margin-top: 50px;}
+.addPeak form{margin: 0 auto; margin: 0 auto; box-shadow: 0px 0px 10px 0px gray; padding: 15px; background:#fff;}
+
+.addPeak h2{text-align: center;}
+.addPeak .form-group .control-group{margin-top: 15px;}
+.addPeak .form-group .radio{width: 100%;}
+.addPeak .form-group .control-label,.login-register form .control-label{font-weight: 400;font-size:19px; }
+.addPeak .form-group .btn{width: 100%;}
+.addPeak #id_fileJson{background-color:#173e43 !important; color:white !important; border-radius: 0;border: none; opacity: 0.89;}
+/*#tab2{ background: url(/media/bgPeak.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover; }*/
+
+
+
+/* login register form */
+
+.login-register { width: 30%; margin: 0 auto; box-shadow: 0px 0px 10px 0px gray; padding: 15px; background:#fff;}
+.login-register form input{width: 100%; border: 0; background: #173e43; color: white; padding: 5px;}
+.login-register .control-group{margin-top: 10px;}
+.login-register form .btn{width: 100%;}
+.login-register .form-footer {width: 100%; text-align: center;}
+.login-register form input:focus,.login-register form input:required{  outline: none !important; border-color: #719ECE; box-shadow: 0 0 10px #719ECE; }
+.login-register-wrapper{background-color: #f6ffee;}

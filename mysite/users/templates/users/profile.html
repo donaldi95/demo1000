@@ -1,114 +1,103 @@
 {% extends "users/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-   
-    <div class="content-section add-margin-top">
-      <div class="media">
-        <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
-        <div class="media-body">
-          <h2 class="account-heading">{{ user.username }}</h2>
-          <h2 class="account-heading">{{ user.id }}</h2>
-          <p class="text-secondary">{{ user.email }}</p>
-          <p class="text-secondary">User is Manager {{ user.is_manager }}</p>
-           <p class="text-secondary">User is Worker {{ user.is_worker }}</p>
+<div class="content-fluid ">
+  <div class="col-sm-2  tab-sidebar-content ">
+    <nav id="#sidebar" class="nav-sidebar left-sidebar">
+      <ul class="nav tabs">
+          <li class=""><a class="active" href="#profile" data-toggle="tab">Profile</a></li>
+          {% if user.is_manager %}
+                <li class="nav-item">
+                    <a id="tab-C" href="#manager-campaigns" class="nav-link" data-toggle="tab" role="tab">
+                        
+                          Your Campaigns
+                    </a>
+                </li>
+          {% endif %}
+          <li class=""><a href="#enrolled-campaigns" data-toggle="tab">Campaigns Enrolled</a></li>                               
+          <li class=""><a href="#user-annotations" data-toggle="tab">Your Annotations</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="col-sm-10 tab-sidebar-content-right add-margin-top">
+    <!-- tab content -->
+    <div class="tab-content">
+      <!-- PROFILE TAB-->
+      <div class="tab-pane active text-style" id="profile">
+        <div class="content-section">
+          <div class="media">
+            <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
+            <div class="media-body">
+              <h2 class="account-heading">{{ user.username }}</h2>
+              <h2 class="account-heading">{{ user.id }}</h2>
+              <p class="text-secondary">{{ user.email }}</p>
+              <p class="text-secondary">User is Manager {{ user.is_manager }}</p>
+               <p class="text-secondary">User is Worker {{ user.is_worker }}</p>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-      <div class="container">
-            <ul id="tabs" class="nav nav-tabs" role="tablist">
-
-                <li class="nav-item">
-                    <a id="tab-A" href="#pane-A" class="nav-link active" data-toggle="tab" role="tab">– Your Annotations –</a>
-                </li>
-                <li class="nav-item">
-                    <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">–Campaigns Enrolled–</a>
-                </li>
-
-                {% if user.is_manager %}
-                  <li class="nav-item">
-                      <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">
-                          
-                            Your Campaigns
-                      </a>
-                  </li>
+      <!-- Campaign TAB, if user is manager-->
+      {% if user.is_manager %}
+        <div class="tab-pane text-style" id="manager-campaigns">
+          <h5 class="mb-0">
+                {% if campaigns %}
+                  {% for campaign in campaigns %}
+                      <article class="media content-section">
+                              <img class="rounded-circle article-img" src="{{campaign.user_id.profile.image.url }}">
+                              <div class="media-body">
+                                <div class="article-metadata">
+                                  <h3><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Campaign Name: {{ campaign.name }}</a></h3>
+                                  <a class="mr-2" href="#">{{ campaign.user_id }}</a>
+                                  <small class="text-muted">Date Posted : {{ campaign.date_posted|date:"F d, Y" }}</small>
+                                </div>
+                              
+                              </div>
+                        </article>
+                  {% endfor %}
                 {% endif %}
-
-            </ul>
-
-
-            <div id="content" class="tab-content" role="tablist">
-                <div id="pane-A" class="card tab-pane fade show active" role="tabpanel" aria-labelledby="tab-A">
-                    <div class="card-header" role="tab" id="heading-A">
-                        <h5 class="mb-0">
-                            <a data-toggle="collapse" href="#collapse-A" data-parent="#content" aria-expanded="true"
-                                aria-controls="collapse-A">
-                                List Of annotations done by user and the name of Peak the annotation goes to plus the campaign name
-                            </a>
-                        </h5>
-                    </div>
-                    <div id="collapse-A" class="collapse show" role="tabpanel" aria-labelledby="heading-A">
-                        <div class="card-body">
-                          {% if annotations %}
-
-                          {% else %}
-                            You have not yet annotated any peak, check your enrolled campaigs if respective worker has published any peak. <br>
-                            <a href="{% url 'campaign-home' %}">Check All Published Campaigns </a>
-                          {% endif %}
-                          
-                        </div>
-                    </div>
-                </div>
-
-                <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
-                    <div class="card-header" role="tab" id="heading-B">
-                          <div class="card-body">
-                              {% if campaigns_enrolled %}
-                                {% for campaign_enrolled in campaigns_enrolled %}
-                                    <article class="media content-section">
-                                          <div class="media-body">
-                                            <div class="article-metadata">
-                                              <h3 class="article-title">Enrolled: {{ campaign_enrolled.name }}</h3>
-                                              <a class="link" href="{% url 'peak-list' campaign_enrolled.id  %}"> Annotate peaks now </a>
-                                            </div>
-                                          
-                                          </div>
-                                    </article>
-                                {% endfor %}
-                              {% else %}
-                                <h5>You have not enrolled in any campaign </h5> <a href="{% url 'campaign-home' %}"> Start Enrolling now </a>
-                              {% endif %}
-                          </div>
-                    </div>
-                  
-                </div>
-
-
-                {% if user.is_manager %}
-                  <div id="pane-C" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-C">
-                      <div class="card-header" role="tab" id="heading-C">
-                          <h5 class="mb-0">
-                                {% if campaigns %}
-                                  {% for campaign in campaigns %}
-                                      <article class="media content-section">
-                                              <img class="rounded-circle article-img" src="{{campaign.user_id.profile.image.url }}">
-                                              <div class="media-body">
-                                                <div class="article-metadata">
-                                                  <h3><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Campaign Name: {{ campaign.name }}</a></h3>
-                                                  <a class="mr-2" href="#">{{ campaign.user_id }}</a>
-                                                  <small class="text-muted">Date Posted : {{ campaign.date_posted|date:"F d, Y" }}</small>
-                                                </div>
-                                              
-                                              </div>
-                                        </article>
-                                  {% endfor %}
-                                {% endif %}
-                          </h5>
-                      </div>
-                  </div>
-                {% endif %}
-            </div>
+          </h5>
         </div>
-      <!-- FORM HERE -->
+      {% endif %}
+
+      <!-- Enrolled Campaigns -->
+      <div class="tab-pane" id="enrolled-campaigns">
+        <div class="card-body">
+          {% if campaigns_enrolled %}
+            {% for campaign_enrolled in campaigns_enrolled %}
+                <article class="media content-section">
+                      <div class="media-body">
+                        <div class="article-metadata">
+                          <h3 class="article-title">Enrolled: {{ campaign_enrolled.name }}</h3>
+                          <a class="link" href="{% url 'peak-list' campaign_enrolled.id  %}"> Annotate peaks now </a>
+                        </div>
+                      </div>
+                </article>
+            {% endfor %}
+          {% else %}
+            <h5>You have not enrolled in any campaign </h5> <a href="{% url 'campaign-home' %}"> Start Enrolling now </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Annotations -->
+      <div class="tab-pane" id="user-annotations">
+        <div class="card-body">
+          {% if annotations %}
+            Here will go your annotations
+          {% else %}
+            You have not yet annotated any peak, check your enrolled campaigs if respective worker has published any peak. <br>
+            <a href="{% url 'campaign-home' %}">Check All Published Campaigns </a>
+          {% endif %}                
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+   
 
 {% endblock content %}

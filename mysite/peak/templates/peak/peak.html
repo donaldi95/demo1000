@@ -3,70 +3,93 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class="container-fluid">
-          
-          <article class="row ">
-            <div class="media-body col-md-8">
-              <div class="map">
-                {% if peak %}
+<div class="content-fluid ">
+  <div class="col-sm-2  tab-sidebar-content ">
+    <nav id="#sidebar" class="nav-sidebar left-sidebar">
+      <ul class="nav tabs">
+          <li class=""><a class="active" href="#maptwod" data-toggle="tab">Map2d</a></li>
+          <li class=""><a href="#mapthreed" data-toggle="tab">Map3d</a></li>                               
+      </ul>
+    </nav>
+  </div>
+
+    <div class="col-sm-10 tab-sidebar-content-right">
+        <!-- tab content -->
+        <div class="tab-content">
+            <!-- PROFILE TAB-->
+            <div class="tab-pane active text-style" id="maptwod">
+                <div class="map">
+                    {% if peak %}
                     {% leaflet_map "main" callback="map_init" %}  
-                {% else %}  
+                    {% else %}  
                     <h1>There are no peaks</h1>  
-                {% endif %}       
-              </div>            
+                    {% endif %}       
+                </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="container-fluid shadow-lg">     
-                    <div id="message-div"></div>
-                    <pre id="datahere"> <h1> Peak Information </h1></pre>
-                     {% csrf_token %}
-                    <pre id="peak"></pre>
-                    {% if status.0.status != "Closed" %}
-                        {% if user.is_authenticated and peak and user_enrolled %}
-                            <div id="form-here">
-                             {% if peak_of_user|length < 1  %}
-                                <form action='' method='POST' id="submitAnnotation" >
-                                    {{ form|crispy }}
-                                    <input type="hidden" name="hidden_id" value="0" id="hidden_id">
-                                    <div class="form-group">
-                                        <button class="btn btn-outline-info" type="submit">Add annotation</button>
-                                    </div>
-                                </form>
-                            {% endif %}
-                            </div>
+            <!-- Enrolled Campaigns -->
+            <div class="tab-pane" id="mapthreed">
+                <div class="media-body ">
+                    <div id="cesiumContainer" style="width: 100%; height:400px"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="shadow-lg col-sm-6">     
+                <div id="message-div"></div>
+                <pre id="datahere"> <h1> Peak Information </h1></pre>
+                <pre id="peak"></pre>
+                {% if status.0.status != "Closed" %}
+                    {% if user.is_authenticated and peak and user_enrolled %}
+                        <div id="form-here">
+                         {% if peak_of_user|length < 1  %}
+                            <form action='' method='POST' id="submitAnnotation" >
+                                {% csrf_token %}
+                                {{ form|crispy }}
+                                <input type="hidden" name="hidden_id" value="0" id="hidden_id">
+                                <div class="form-group">
+                                    <button class="btn btn-outline-info" type="submit">Add annotation</button>
+                                </div>
+                            </form>
                         {% endif %}
+                        </div>
                     {% endif %}
-                </div>
-                <div  class="container-fluid shadow-lg">   
-                    <h3>here will go the annotation</h3>
-                    <div id="annotation"></div>
-                </div>
+                {% endif %}
             </div>
-          </article>
-         
-
+            <div  class="shadow-lg col-sm-6">   
+                <pre id="datahere"> <h1> Peak Annotations </h1></pre>
+                <div id="annotation"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script type="text/javascript">  
+
 
         function map_init(map, options) {
 
             var LeafIcon = L.Icon.extend({
                 options: {
-                    iconSize:     [38, 95],
+                    iconSize:     [38, 50],
                     shadowSize:   [50, 64],
-                    iconAnchor:   [22, 94],
+                    iconAnchor:   [22, 60],
                     shadowAnchor: [4, 62],
                     popupAnchor:  [-3, -76]
                 }
             });
-
             map.locate({setView: true, maxZoom: 16});
-            map.on('locationfound', onLocationFound);
+            var marker          = L.marker(map.getCenter()).addTo(map),
+            onLocationfound = function(e){
+              marker.setLatLng(e.latlng);
+              map.setView(marker.getLatLng(),map.getZoom()); 
+            };
 
-            var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-green.png'}),
-            redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-red.png'}),
-            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-orange.png'});
+            map.on('locationfound', onLocationfound);
+
+            var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin1.png'}),
+            redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin2.png'}),
+            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin3.png'});
 
             //creating a json format for the data we have so we can pass it to map
 
@@ -84,7 +107,7 @@
 
 
             // setting a main point on the map where the map will be focused on oppening
-            map.setView([articles[0]['lat'], articles[1]['lon']], 12);
+            // map.setView([articles[0]['lat'], articles[1]['lon']], 12);
 
             //long lat variables
             var lat, lon;
@@ -106,13 +129,29 @@
 
         }//end function map_init()
 
-        function onLocationFound(e) {
-            var radius = e.accuracy;
-            L.marker(e.latlng).addTo(map).bindPopup("You are within " + radius + " meters from this point").openPopup();
-            L.circle(e.latlng, radius).addTo(map);
-        }
+        
+
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5YWZhNDVlMi0xNGE3LTRjM2UtOWRjOS1kMmI4MTE1NzQzMmQiLCJpZCI6MjEwNDMsInNjb3BlcyI6WyJhc2wiLCJhc3IiLCJhc3ciLCJnYyJdLCJpYXQiOjE1Nzg4MzY5Mzl9.pHkXKZcjJ6MKJsJ50Nv7jsCHgJwMqz0opqHv2RooEbI';
+        var viewer = new Cesium.Viewer('cesiumContainer', {
+            terrainProvider: Cesium.createWorldTerrain()
+        });
+
+        var citizensBankPark = viewer.entities.add({
+                  position : Cesium.Cartesian3.fromDegrees(-75.166493, 39.9060534),
+                  billboard : {
+                    image : 'http://127.0.0.1:8000/media/leaf-green.png',
+                    width : 64,
+                    height : 64
+                  },
+                  label : {
+                    text : 'Citizens Bank Park',
+                    font : '14pt monospace',
+                    style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                    outlineWidth : 2,
+                    verticalOrigin : Cesium.VerticalOrigin.TOP,
+                    pixelOffset : new Cesium.Cartesian2(0, 32)
+                  }
+                });
 
     </script>
-
-    </div>
 {% endblock content %}

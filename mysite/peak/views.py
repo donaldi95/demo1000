@@ -50,16 +50,16 @@ class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 		if self.request.is_ajax():
 			mydata = json.loads(request.body)
 			if request.method == 'POST' and mydata['action'] == 'getPeakData':
-					#print(mydata['action'])
-					peaks1 = list(Peak.objects.filter(id = mydata['peak_id']).values())
-					data1  = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
-					print(peaks1)
-					data = {
-						'peaks_json':peaks1, 
-						'annotations':data1,
-						}
-					#print(data['annotations'])
-					return JsonResponse({'peaks': data},content_type='application/json')
+				#print(mydata['action'])
+				peaks1 = list(Peak.objects.filter(id = mydata['peak_id']).values())
+				data1  = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
+				print(peaks1)
+				data = {
+					'peaks_json':peaks1, 
+					'annotations':data1,
+					}
+				#print(data['annotations'])
+				return JsonResponse({'peaks': data},content_type='application/json')
 		else:
 			self.object = Peak.objects
 			form = self.get_form()
@@ -109,7 +109,7 @@ class PeakDetailView(LoginRequiredMixin,DetailView):
 		annotation 				= Peak_annotations.objects.get(peak_id = self.kwargs['pk'])
 
 		annotation.status 		= self.request.POST.get('evaluateAnnotation')
-		annotation.valued 		= True
+		#annotation.status 		= True
 		#post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
 		#post.user_id   	= request.user
 		annotation.save()

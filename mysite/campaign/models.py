@@ -1,5 +1,4 @@
 from django.db import models
-from django.db import models
 from users import models as user_models
 from django.utils import timezone
 from datetime import date

@@ -65,10 +65,10 @@ function groupClick(event) {
 
 
 
-function addAnnotation(event) {
+function adminData(event) {
   var csrftoken     = jQuery("[name=csrfmiddlewaretoken]").val();
   const id          = this.options.id;
-  //console.log(id);
+  console.log(id);
   function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
         return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
@@ -84,27 +84,55 @@ function addAnnotation(event) {
     data:          JSON.stringify( {
       csrfmiddlewaretoken     : csrftoken,
       peak_id                 : id, 
-      action                  : 'getPeakData',
+      action                  : 'getPeakDataForAdmin',
     }),
     contentType:    'application/json; charset=utf-8',
     dataType:       'json',
     success:        function (result) {
-      $('#annotation').html("<p></p>");
-        
         peak = JSON.parse(JSON.stringify(result.peaks['peaks_json']));
-        console.log(peak);
-       //console.log( 'this is peak '+peak);
-        $('#peak').html(
-             "<p class='peaks'> Peak Name : "+ peak[0]['name'] + "<br><span> Localize Name is :"+  peak[0]['localize_names'] +" </span> <br> Lat : "+ peak[0]['lat'] + " Lon : "+ peak[0]['lon']+"<br> Date Posted : "+ peak[0]['date_posted'] +" </p>" 
-        );
-
         annotation = JSON.parse(JSON.stringify(result.peaks['annotations']));
        // console.log(annotation.length);
+
+        
+
+        //$clone= $('.checkAnnotation').clone();
+        //$copy = $clone.clone(); 
         for (var i = 0; i <= annotation.length-1; i++) {
-          //console.log(i);
-          $('#annotation').append(
-             "<p class='annotaion'> Annotation name : "+ annotation[i]['w_name'] + " <br> <span> Status is : </span>"+  annotation[i]['status'] +" </p>"
-          );
+
+          //console.log(annotation[i]['valued']);
+          var peakName ='No Value';
+          if(annotation[i]['w_name']){ peakName = annotation[i]['w_name']; }
+           
+          if(annotation[i]['status'] == null){
+            $('.noMoment .formNotInserted .hidden_peak_id').val(annotation[i]['id']);
+            $(".noMoment").removeClass("formNotInserted");
+            $clone= $('.noMoment').clone();
+
+             $('#annotationsNotEvaluated .annotation_admin').append(
+               "<tr><td>: "
+                    + 
+                      peakName
+                    + 
+                " </td><br> <td> "
+                +  annotation[i]['status'] +" </td> <td>"+
+                   annotation[i]['localized_names']
+                +"</td> <td class='formhere annotation"+annotation[i]['id']+"'>"+$clone.html()+"</td> </tr> "
+            );
+             //$(".formhere.annotation"+annotation[i]['id']).append();
+             //$('.formhere .hidden_peak_id').val(annotation[i]['id']);
+          }else{
+            $('#annotationsEvaluated .annotation_admin').append(
+               "<tr><td>: "
+                    + 
+                      peakName
+                    + 
+                " </td><br> <td> "
+                +  annotation[i]['status'] +" </td> <td>"+
+                  annotation[i]['localized_names']
+                +"</td></tr> "
+            );
+          }
+          $(".noMoment").addClass("formNotInserted");
         }
 
         /*
@@ -117,13 +145,9 @@ function addAnnotation(event) {
         }else{
           $("#submitAnnotation").hide();
         }
-        var mydiv = $('#peak .peaks');
-        if(mydiv.length > 1){
-            $('#peak .peaks:last').remove();
-        }
-        $('#hidden_id').val(peak[0]['id']);
     },
     error: function(result) {
+      console.log("error");
         $("#message-div").html("Something went wrong!");
     } 
   });

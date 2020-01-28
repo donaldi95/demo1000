@@ -3,134 +3,186 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-  <article class="media content-section">
-    <img class="rounded-circle article-img" src="{{ object.user_id.profile.image.url }}">
-    <div class="media-body">
-      <div class="article-metadata">
-        <a class="mr-2" href="#">{{ object.user_id }}</a>
-        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+{% csrf_token %}
+<div class="content-fluid">
+  <div class="col-sm-2  tab-sidebar-content ">
+    <nav id="#sidebar" class="nav-sidebar left-sidebar">
+      <ul class="nav tabs">
+          <li class=""><a class="active" href="#campaignDetails" data-toggle="tab">Campaign Details</a></li>
+          <li class=""><a href="#tab1" data-toggle="tab">Evaluate Annotations</a></li>
+          <li class=""><a href="#tab2" data-toggle="tab">Add Peaks</a></li>
+          <li class=""><a href="#tab3" data-toggle="tab">Update Peaks</a></li>                               
+      </ul>
+    </nav>
+  </div>
 
-        {% if campaign.user_id == actualUser  %}
-          <div>
-            {% if campaign.status != "Closed" %}
-            <a class="btn btn-secondarysm mt-1 mb-1" href="{% url 'campaign-update' object.id %}">Update</a>
-            {% endif %}
-            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'campaign-delete' object.id %}">Delete</a>
+
+
+  <div class="col-sm-10 tab-sidebar-content-right">
+    <!-- tab content -->
+    <div class="tab-content">
+      <div class="tab-pane active text-style" id="campaignDetails">
+        <article class="media content-section">
+          <img class="rounded-circle article-img" src="{{ object.user_id.profile.image.url }}">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="#">{{ object.user_id }}</a>
+              <small class="text-muted">Date Created: {{ object.date_posted|date:"F d, Y" }}</small>
+
+              {% if campaign.user_id == actualUser  %}
+                <div>
+                  {% if campaign.status != "Closed" %}
+                  <a class="btn btn-secondarysm mt-1 mb-1" href="{% url 'campaign-update' object.id %}">Update</a>
+                  {% endif %}
+                  <a class="btn btn-danger delete-btn mt-1 mb-1" href="{% url 'campaign-delete' object.id %}">Delete</a>
+                </div>
+              {% endif %}
+            </div>
+            <h2 class="article-title"><span>CampaignName:</span> {{ campaign.name }}</h2>
+            <p class="article-content start-date"> <span>Started Date:</span> {{ object.start_date }}</p>
+            <p class="article-content end-date"> <span>Ending  Date: </span>{{ object.end_date }}</p>
+            <p class="article-content"><span>Status:</span> {{ object.status }}</p>
+
           </div>
-        {% endif %}
+        </article>
+
+          
+        <div class="container">
+            <div class="row ">
+              <table class="table table-dark table-hover peak-annotations">
+                <thead>
+                  <tr>
+                    <th>Not Annotated Peaks</th>
+                    <th>Nr of peaks in the annotated state (1 or more annotations)</th>
+                    <th>Nr of peaks with at least 1 or more rejected annotations</th>
+                    <th>Number of conflicts (see definition below)</th>
+                  </tr>
+                </thead>
+                <tbody class="annotation_admin campaign_details">
+                  <tr>
+                    <td>{{notAnnotatedPeaks}}</td>
+                    <td>{{AnnotatedPeaks}}</td>
+                    <td>{{RejectedPeaks}}</td>
+                    <td>{{conflix}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+        </div>
       </div>
-      <h2 class="article-title">   Name: {{ campaign.name }}</h2>
-      <p class="article-content">  StartDate: {{ object.start_date }}</p>
-      <p class="article-content">  {{ object.end_date }}</p>
-      <p class="article-content">  {{ object.status }}</p>
+    <div class="tab-pane text-style" id="tab1">
+      here to show the campaign information
 
-    </div>
-  </article>
-    <div class="container">
-      
-            <ul id="tabs" class="nav nav-tabs" role="tablist">
-                <li class="nav-item">
-                    <a id="tab-A" href="#pane-A" class="nav-link active" data-toggle="tab" role="tab">–A–</a>
-                </li>
-                <li class="nav-item">
-                    <a id="tab-B" href="#pane-B" class="nav-link" data-toggle="tab" role="tab">–Campaign Details–</a>
-                </li>
-                <li class="nav-item">
-                    <a id="tab-C" href="#pane-C" class="nav-link" data-toggle="tab" role="tab">–PEAKS FOR THIS CAMPAIGN–</a>
-                </li>
+        <div class="map">
+                {% if campaign_peaks %}
+                    {% leaflet_map "main" callback="map_init" %}  
+                {% else %}  
+                    <h1>There are no peaks</h1>  
+                {% endif %}       
+        </div> 
+        <div class="content annotationsTabs">
+          <h1>here go all peak annotations for admin so he can edit</h1>
+          <div class="row">
+            <ul class="nav nav-tabs">
+              <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#annotationsEvaluated">Not Evaluated Annotations</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#annotationsNotEvaluated">Evaluated Annotations</a>
+              </li>
             </ul>
+          </div>
 
-            <div id="content" class="tab-content" role="tablist">
-                <div id="pane-A" class="card tab-pane fade show active" role="tabpanel" aria-labelledby="tab-A">
-         
-                    <div id="collapse-A" class="collapse show" role="tabpanel" aria-labelledby="heading-A">
-                    {% if campaign.user_id == actualUser and campaign.status != "Closed" %}
-                        <div class="card-body">
-                                 <form method="POST" enctype="multipart/form-data">
-                                      {% csrf_token %}
-                                      <fieldset class="form-group">
-                                          <legend class="border-bottom mb-4">Add e new peak</legend>
-                                          {{ form|crispy }}
-                                      </fieldset>
-                                      <div class="form-group">
-                                          <button class="btn btn-outline-info" type="submit" name="enroll_worker">Add Peak</button>
-                                      </div>
-                                  </form>  
-                    {% else %}
-                      {% if campaign.status == "Closed" %}
-                        <p>Campaign is closed</p>
-                      {% endif %}
-                    {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div id="pane-B" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-B">
-                    <div class="card-header" role="tab" id="heading-B">
-                        <h5 class="mb-0">
-                            <a class="collapsed" data-toggle="collapse" href="#collapse-B" data-parent="#content" aria-expanded="false"
-                                aria-controls="collapse-B">
-                                Check the details for peaks
-                            </a>
-                        </h5>
-                    </div>
-                    <div role="tabpanel" aria-labelledby="heading-B">
-                        <div class="row ">
-                          <div class="col bg-success">
-                            Not Annotated Peaks  
-                          </div>
-                          <div class="col bg-warning">
-                            Nr of peaks in the annotated state (1 or more annotations) 
-                          </div>
-                          <div class="col bg-danger">
-                            Nr of peaks with at least 1 or more rejected annotations
-                          </div>
-                          <div class="col bg-danger">
-                            Number of conflicts (see definition below)
-                          </div>
-                        </div>
-                    </div>
-                    <div role="tabpanel" aria-labelledby="heading-B">
-                        <div class="row">
-                          <div class="col">
-                            {{notAnnotatedPeaks}}
-                          </div>
-                          <div class="col">
-                            {{AnnotatedPeaks}}
-                          </div>
-                          <div class="col">
-                            {{RejectedPeaks}}
-                          </div>
-                          <div class="col">
-                            {{conflix}}
-                          </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="pane-C" class="card tab-pane fade" role="tabpanel" aria-labelledby="tab-C">
-                    <div class="card-header" role="tab" id="heading-C">
-                        <h5 class="mb-0">
-                            <a class="collapsed" data-toggle="collapse" href="#collapse-C" data-parent="#content" aria-expanded="false"
-                                aria-controls="collapse-C">
-                                Collapsible Group Item C
-                            </a>
-                        </h5>
-                    </div>
-                    <div id="collapse-C" class="collapse" role="tabpanel" aria-labelledby="heading-C">
-                        <div class="card-body">
-                              {% if campaign_peaks %}
-                                  {% leaflet_map "main" callback="map_init" %}  
-                              {% else %}  
-                                  <h1>There are no peaks</h1>  
-                              {% endif %}
-                        </div>
-                    </div>
-                </div>
+          <!-- Tab panes -->
+          <div class="tab-content">
+            <div class="tab-pane container active" id="annotationsNotEvaluated">
+              <table class="table table-dark table-hover peak-annotations">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Localized Names</th>
+                    <th>Evaluate annotation</th>
+                  </tr>
+                </thead>
+                <tbody class="annotation_admin">
+                  
+                </tbody>
+              </table>
             </div>
 
-      <script type="text/javascript">  
+            <div class="tab-pane container fade" id="annotationsEvaluated">
+              <table class="table table-dark table-hover peak-annotations">
+                <thead>
+                  <tr>
+                    <th>Worker Name</th>
+                    <th>Peak Status</th>
+                    <th>Peak Id</th>
+                    <th>Evaluate annotation</th>
+                  </tr>
+                </thead>
+                <tbody class="annotation_admin">
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+    
+        </div>
+    </div>
 
+
+<div class="noMoment">
+    <form action='' method='POST' name="evaluateAnnotation" class='checkAnnotation formNotInserted'>
+      {% csrf_token %}
+      <input type='hidden' name='hidden_peak_id' class="hidden_peak_id" value='' id='hidden_id'>
+      <input type="hidden" name="act_cpm" value="{{campaign.id}}">
+      <div>
+        <input type='radio' id='accept' name='evaluateAnnotation' value='True'><label for='accept'>Accept</label>
+      </div>
+      <div>
+        <input type='radio' id='reject' name='evaluateAnnotation' value='False'><label for='reject'>Reject</label>
+      </div>
+      <div class='form-group'>
+        <button class='btn btn-outline-info' type='submit'>Evaluate</button>
+      </div> 
+    </form>
+</div>
+
+    <div class="tab-pane text-style" id="tab2">
+      <div class="content addPeak">
+        {% if campaign.user_id == actualUser and campaign.status != "Closed" %}
+          <h2 class="border-bottom mb-4">Add e new peak</h2>
+          <div class="row">
+            <form method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <fieldset class="form-group">
+                    {{ form|crispy }}
+                  </fieldset>
+                  <div class="form-group">
+                      <button class="btn btn-outline-info" type="submit" name="enroll_worker">Add Peak</button>
+                  </div>
+            </form>
+          </div>  
+        {% else %}
+          {% if campaign.status == "Closed" %}
+            <h2>This Campaign is closed. You cannot add peaks anymore.</h2>
+          {% endif %}
+        {% endif %}
+      </div>
+     
+    </div>
+
+    <div class="tab-pane text-style" id="tab3">
+      <h2>Update Peaks by loading a json file with the same id of peaks used in this campaign</h2>
+    </div>
+  </div>
+  </div>
+    
+</div>
+
+
+      <script type="text/javascript">  
         function map_init(map, options) {
 
             var LeafIcon = L.Icon.extend({
@@ -177,9 +229,9 @@
                 //console.log(articles[i]['status'].toLowerCase());
              
                 if(articles[i]['status'].toLowerCase() == 'true'){
-                    L.marker([lat, lon], {icon: greenIcon, title:'green', id:id}).addTo(map).on("click", groupClick);   
+                    L.marker([lat, lon], {icon: greenIcon, title:'green', id:id}).addTo(map).on("click", adminData);   
                 }else{
-                    L.marker([lat, lon], {icon: redIcon, title:'red',  id:id}).addTo(map).on("click", groupClick);
+                    L.marker([lat, lon], {icon: redIcon, title:'red',  id:id}).addTo(map).on("click", adminData);
                 }
             } //end for loop  
 

@@ -3,6 +3,7 @@
 {% load leaflet_tags %}
 
 {% block content %}
+{% csrf_token %}
   <article class="media content-section">
     <div class="media-body">
       <div class="article-metadata">
@@ -64,7 +65,7 @@
                                     <div class="col">{{o.status}}</div>
                                     <div class="col">{{o.id}}</div>
 
-                                    {% if o.valued != 1 and user.is_manager %}
+                                    {% if o.status != 1 and user.is_manager %}
                                     <div class="col">
 
                                         <form action='' method='POST' id="checkAnnotation" >

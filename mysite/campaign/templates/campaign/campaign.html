@@ -3,9 +3,9 @@
 
 {% block content %}
     {% for campaign in campaign %}
-      <div class="container">
-     
-              <article class="media content-section bg-warning">
+      <div class="container add-margin-top">
+        
+              <article class="media content-section">
                 <img class="rounded-circle article-img" src="{{ campaign.user_id.profile.image.url }}">
                 <div class="media-body">
                   <div class="article-metadata">
@@ -33,7 +33,13 @@
                 {% endif %} 
                 {% endif %}
               </div>
-          
+    
       </div>
     {% endfor %}
+
+    {% if closed_campaigns %}
+      There are closed campaigns
+    {% else %}
+      there are not
+    {% endif %}
 {% endblock content %}

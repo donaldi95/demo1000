@@ -19,6 +19,8 @@ from users.models import MyUser
 from peak.models import Peak
 from django.contrib import messages
 from peak.forms import PeakForm
+from django.http import JsonResponse
+
 from user_activities.forms import CampaignEnroll
 from django import template
 from user_activities.models import Campaign_enrollment,Peak_annotations
@@ -62,11 +64,7 @@ class CampaignListView(ListView):
 		context 						= super(CampaignListView, self).get_context_data(**kwargs)
 		context["actualUser"] 			= self.request.user
 		context["userHasEnrolled"]		= CheckUserEnroll(self.request.GET.get('id'), self.request.user.id)
-		
-		#get the Campaign Enrolled for the logged in user
-		#enrolled 					= list(Campaign_enrollment.objects.filter(user_id = self.request.user.id).values())
-		#enrolled 	= json.dumps(enrolled)
-		#enrolled 	= json.loads(enrolled)
+		context["closed_campaigns"] 	= Campaign.objects.filter(status = 'Closed')
 		return context
 
 	#to do here is to clear the form after submit
@@ -94,7 +92,7 @@ class CampaignListView(ListView):
 
 # a view for individual campaign
 # here i am sticking to django default template just to show the difference
-class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
+class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,DetailView):
 	model 		 = Campaign
 	form_class 	 = PeakForm
 
@@ -107,37 +105,87 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 		context["actualUser"] 			= self.request.user
 		context["userHasEnrolled"]		= CheckUserEnroll(self.object.id, self.request.user.id)
 		context["campaign_peaks"] 		= Peak.objects.filter(campaign_id = self.kwargs['pk']).values()
-		peaks							= Peak.objects.filter(campaign_id = self.kwargs['pk']).values()
-		totalPeaksForCampaign 			= peaks.count()
+		peaks							= context["campaign_peaks"]
+		context["totalPeaksForCampaign"]= peaks.count()
+		annotatedPeaks = []
+		rejectedPeaks  = []
+		allPeaks 	   = 0
 		#find dthe total non annotated peaks
 		peaks = list(peaks)
 		incr = 0
 		if peaks:
+			#here we get all the annotations that the peaks of the campaigns have annotations
 			for peak in peaks:
-					annotatedPeaks 			= Peak_annotations.objects.filter(peak_id = peak['id']).values('peak_id').distinct()
-					rejectedPeaks 			= Peak_annotations.objects.filter(peak_id = peak['id'],valued=0).values('peak_id').distinct()
-					allPeaks				= Peak_annotations.objects.filter(peak_id = peak['id']).values()
+				temp  = Peak_annotations.objects.filter(peak_id = peak['id']).values('peak_id').distinct()
+				temp2 = Peak_annotations.objects.filter(peak_id = peak['id'],status=0).values('peak_id').distinct()
+				temp3 = list(Peak_annotations.objects.filter(peak_id = peak['id']).values())
+				if temp:
+					annotatedPeaks.append(temp)
+
+				if temp2:
+					rejectedPeaks.append(temp2)
+
+				if temp3:
+					allPeaks = temp3
 			if allPeaks:
-				for p in list(allPeaks):
-					for p2 in list(allPeaks):
-						if p['peak_id_id'] == p2['peak_id_id']:
-							if p['w_name'] != p2['w_name']:
-								#print('it is')
+				for i in allPeaks:
+					for p2 in allPeaks:
+						if i['peak_id_id'] == p2['peak_id_id']:
+							if i['valued'] != p2['valued']:
 								incr += 1
-			context['notAnnotatedPeaks'] 	= totalPeaksForCampaign-annotatedPeaks.count()
-			context['AnnotatedPeaks'] 		= annotatedPeaks.count()
-			context['RejectedPeaks'] 		= rejectedPeaks.count()
+			context['notAnnotatedPeaks'] 	= context["totalPeaksForCampaign"]-len(annotatedPeaks)
+			context['AnnotatedPeaks'] 		= len(annotatedPeaks)
+			context['RejectedPeaks'] 		= len(rejectedPeaks)
 			context['conflix']				= incr
-		#print(incr)
 		return context
 
 	def post(self, request, *args, **kwargs):
-		self.object = self.get_object()
-		form = self.get_form()
-		if form.is_valid():
-			return self.form_valid(form)
+		if self.request.is_ajax():
+			mydata = json.loads(request.body)
+			if request.method == 'POST' and mydata['action'] == 'getPeakDataForAdmin':
+				#print(mydata['action'])
+				peaks1 = list(Peak.objects.filter(id = mydata['peak_id']).values())
+				annotation_evaluated  = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
+				data = {
+					'peaks_json':peaks1, 
+					'annotations':annotation_evaluated,
+					}
+				return JsonResponse({'peaks': data},content_type='application/json')
 		else:
-			return self.form_invalid(form)
+			if request.POST['evaluateAnnotation']:
+				print("okay we in")
+				self.object 			= None
+				annotation_peak 		= self.request.POST.get('hidden_peak_id')
+				annotation 				= Peak_annotations.objects.get(id = annotation_peak)
+
+				annotation.status 		= self.request.POST.get('evaluateAnnotation')
+				campaign_id 			= self.request.POST.get('act_cpm')
+				#annotation.valued 		= True
+				print(annotation.status)
+				#post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
+				#post.user_id   	= request.user
+				annotation.save()
+				messages.success(request, 'You reviewd the annotaion')
+				return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': campaign_id}))
+			else:
+				self.object = self.get_object()
+				form = self.get_form()
+				if form.is_valid():
+					return self.form_valid(form)
+				else:
+					return self.form_invalid(form)
+		return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': self.object.id}))
+
+	def test_func(self):
+		if self.request.user.is_manager == True:
+			return True
+		return False
+
+	def handle_no_permission(self):
+		self.object = self.get_object()
+		if self.raise_exception:
+			raise PermissionDenied(self.get_permission_denied_message())
+		return HttpResponseRedirect(reverse('peak-list', kwargs={'pk': self.object.id}))
 
 	def form_valid(self,form):
 		form.fields = self.object
@@ -179,6 +227,8 @@ class CampaignDetailView(LoginRequiredMixin,FormMixin,DetailView):
 		else:
 			messages.error(self.request,"The file you tried to add has all the Peaks already registered ")
 			return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': self.object.id}))
+
+
 
 # creatign a new campaign
 class CampaignCreateView(UserPassesTestMixin,LoginRequiredMixin,CreateView):
