@@ -18,7 +18,7 @@
 
 
 
-  <div class="col-sm-10 tab-sidebar-content-right">
+  <div class="col-sm-10 tab-sidebar-content-right add-margin-top">
     <!-- tab content -->
     <div class="tab-content">
       <div class="tab-pane active text-style" id="campaignDetails">
@@ -71,31 +71,30 @@
         </div>
       </div>
     <div class="tab-pane text-style" id="tab1">
-      here to show the campaign information
 
         <div class="map">
-                {% if campaign_peaks %}
-                    {% leaflet_map "main" callback="map_init" %}  
+                {% if campaign_peaks or peaks_notannotate %}
+                    {% leaflet_map "main1" callback="map_init2" %}  
                 {% else %}  
                     <h1>There are no peaks</h1>  
                 {% endif %}       
         </div> 
         <div class="content annotationsTabs">
-          <h1>here go all peak annotations for admin so he can edit</h1>
+          <h1>Annotations</h1>
           <div class="row">
             <ul class="nav nav-tabs">
               <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#annotationsEvaluated">Not Evaluated Annotations</a>
+                <a class="nav-link active" data-toggle="tab" href="#annotationsNotEvaluated">Not Evaluated Annotations</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#annotationsNotEvaluated">Evaluated Annotations</a>
+                <a class="nav-link" data-toggle="tab" href="#annotationsEvaluated">Evaluated Annotations</a>
               </li>
             </ul>
           </div>
 
           <!-- Tab panes -->
           <div class="tab-content">
-            <div class="tab-pane container active" id="annotationsNotEvaluated">
+            <div class="tab-pane container-fluid active" id="annotationsNotEvaluated">
               <table class="table table-dark table-hover peak-annotations">
                 <thead>
                   <tr>
@@ -111,14 +110,15 @@
               </table>
             </div>
 
-            <div class="tab-pane container fade" id="annotationsEvaluated">
+            <div class="tab-pane container-fluid" id="annotationsEvaluated">
               <table class="table table-dark table-hover peak-annotations">
                 <thead>
                   <tr>
-                    <th>Worker Name</th>
-                    <th>Peak Status</th>
-                    <th>Peak Id</th>
-                    <th>Evaluate annotation</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Localized Names</th>
+                    <th class="positive"></th>
+                    <th class="negative"></th>
                   </tr>
                 </thead>
                 <tbody class="annotation_admin">
@@ -133,7 +133,7 @@
 
 
 <div class="noMoment">
-    <form action='' method='POST' name="evaluateAnnotation" class='checkAnnotation formNotInserted'>
+    <form action='' method='POST' class='checkAnnotation formNotInserted'>
       {% csrf_token %}
       <input type='hidden' name='hidden_peak_id' class="hidden_peak_id" value='' id='hidden_id'>
       <input type="hidden" name="act_cpm" value="{{campaign.id}}">
@@ -144,7 +144,7 @@
         <input type='radio' id='reject' name='evaluateAnnotation' value='False'><label for='reject'>Reject</label>
       </div>
       <div class='form-group'>
-        <button class='btn btn-outline-info' type='submit'>Evaluate</button>
+        <button class='btn btn-outline-info' name="evaluateAnnotationForm" type='submit'>Evaluate</button>
       </div> 
     </form>
 </div>
@@ -160,7 +160,7 @@
                     {{ form|crispy }}
                   </fieldset>
                   <div class="form-group">
-                      <button class="btn btn-outline-info" type="submit" name="enroll_worker">Add Peak</button>
+                      <button class="btn btn-outline-info" name="addPeakForm" type="submit" name="enroll_worker">Add Peak</button>
                   </div>
             </form>
           </div>  
@@ -183,21 +183,25 @@
 
 
       <script type="text/javascript">  
-        function map_init(map, options) {
+        function map_init2(map, options) {
 
-            var LeafIcon = L.Icon.extend({
+              var LeafIcon = L.Icon.extend({
                 options: {
-                    iconSize:     [38, 95],
+                    iconSize:     [38, 50],
                     shadowSize:   [50, 64],
-                    iconAnchor:   [22, 94],
+                    iconAnchor:   [22, 60],
                     shadowAnchor: [4, 62],
                     popupAnchor:  [-3, -76]
                 }
             });
 
-            var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-green.png'}),
-            redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-red.png'}),
-            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/leaf-orange.png'});
+            var annotate_status      = [];
+            var not_annotate_status      = [];
+            var rejected_list_el = [];
+
+            var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin1.png'}),
+            redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin2.png'}),
+            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin3.png'});
 
             //creating a json format for the data we have so we can pass it to map
 
@@ -213,13 +217,65 @@
                 {% endfor %}
                 ]
 
+            var rejected_list = [
+
+              {% for p in rejectedList %}
+                    {% if not forloop.first %},{% endif %}
+                    {
+                        lat     :    "{{ p.lat }}",
+                        lon     :    "{{ p.lon }}",
+                        status  :    "{{ p.status }}",
+                        id      :    "{{ p.id     }}",
+                    }
+                {% endfor %}
+            ]
+
+            var peaks_not_annotate = [
+
+              {% for p in peaks_notannotate %}
+                    {% if not forloop.first %},{% endif %}
+                    {
+                        lat     :    "{{ p.lat }}",
+                        lon     :    "{{ p.lon }}",
+                        status  :    "{{ p.status }}",
+                        id      :    "{{ p.id     }}",
+                    }
+                {% endfor %}
+            ]
 
             // setting a main point on the map where the map will be focused on oppening
-            map.setView([articles[0]['lat'], articles[1]['lon']], 3);
+            if(articles[0] != null ){
+              map.setView([articles[0]['lat'], articles[0]['lon']], 3);
+            }else{
+              map.setView([peaks_not_annotate[0]['lat'], peaks_not_annotate[0]['lon']], 3);
+            }
+            
 
             //long lat variables
             var lat, lon;
-
+            //console.log(rejected_list);
+            for (var i = 0; i < rejected_list.length; i++) {
+                //console.log(articles[i]['lat']);
+                lat  = rejected_list[i]['lat'];
+                lon  = rejected_list[i]['lon'];
+                id   = rejected_list[i]['id'];
+                console.log(rejected_list[i]['lat']);
+             
+                rejected_list_el.push(L.marker([lat, lon], {icon: orangeIcon, title:'green', id:id}).addTo(map).on("click", adminData));   
+                
+            }
+            //console.log(peaks_not_annotate);
+            for (var i = 0; i < peaks_not_annotate.length; i++) {
+                //console.log(articles[i]['lat']);
+                lat  = peaks_not_annotate[i]['lat'];
+                lon  = peaks_not_annotate[i]['lon'];
+                id   = peaks_not_annotate[i]['id'];
+                //console.log(rejected_list[i]['lat']);
+             
+                not_annotate_status.push(L.marker([lat, lon], {icon: redIcon, title:'green', id:id}).addTo(map).on("click", adminData));   
+                
+            }
+            
             // the for loop to display the items on the map
             for (var i = 0; i < articles.length; i++) {
                 //console.log(articles[i]['lat']);
@@ -229,11 +285,20 @@
                 //console.log(articles[i]['status'].toLowerCase());
              
                 if(articles[i]['status'].toLowerCase() == 'true'){
-                    L.marker([lat, lon], {icon: greenIcon, title:'green', id:id}).addTo(map).on("click", adminData);   
-                }else{
-                    L.marker([lat, lon], {icon: redIcon, title:'red',  id:id}).addTo(map).on("click", adminData);
+                    annotate_status.push(L.marker([lat, lon], {icon: greenIcon, title:'green', id:id}).addTo(map).on("click", adminData));   
                 }
             } //end for loop  
+
+            var group_annotate_status = L.layerGroup(annotate_status);
+            var group_rejected_list = L.layerGroup(rejected_list_el);
+            var group_not_annotate_status = L.layerGroup(peaks_not_annotate);
+            var overlayMaps = {
+                "Peaks with annotate status": group_annotate_status,
+                "Peak with rejected annotations" : group_rejected_list,
+                "Peak not to annotate" : group_not_annotate_status,
+            };
+            L.control.layers(overlayMaps).addTo(map);
+            //var groupB = L.layerGroup(markersB);
 
         }//end function map_init()
 

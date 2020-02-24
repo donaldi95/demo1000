@@ -1,0 +1,397 @@
+[
+  {
+    "id": 1558521,
+    "provenance": "OpenStreetMap",
+    "elevation": 2230.0,
+    "longitude": 6.454622700000001,
+    "latitude": 44.982261900000005,
+    "name": "Pointe de la Douche",
+    "localized_names": null
+  },
+  {
+    "id": 1558533,
+    "provenance": "OpenStreetMap",
+    "elevation": null,
+    "longitude": 15.005673300000002,
+    "latitude": 47.733985000000004,
+    "name": "Klauskogel",
+    "localized_names": null
+  },
+  {
+    "id": 1558534,
+    "provenance": "OpenStreetMap",
+    "elevation": 324.0,
+    "longitude": 10.455233300000002,
+    "latitude": 44.6267451,
+    "name": "Monte Bellone",
+    "localized_names": null
+  },
+  {
+    "id": 1558540,
+    "provenance": "OpenStreetMap",
+    "elevation": 2905.0,
+    "longitude": 6.264793600000001,
+    "latitude": 45.134495300000005,
+    "name": "Roche Courbe",
+    "localized_names": null
+  },
+  {
+    "id": 1558542,
+    "provenance": "OpenStreetMap",
+    "elevation": 2878.0,
+    "longitude": 6.286015300000001,
+    "latitude": 45.11035390000001,
+    "name": "Pic Sud de la Buffe d'en haut",
+    "localized_names": null
+  },
+  {
+    "id": 1558543,
+    "provenance": "OpenStreetMap",
+    "elevation": 2882.0,
+    "longitude": 6.257433700000001,
+    "latitude": 45.12235390000001,
+    "name": "Cime de la Recoude",
+    "localized_names": null
+  },
+  {
+    "id": 1558546,
+    "provenance": "OpenStreetMap",
+    "elevation": 2887.0,
+    "longitude": 6.385726000000001,
+    "latitude": 45.107335400000004,
+    "name": "Crête d'Argentière",
+    "localized_names": null
+  },
+  {
+    "id": 1558547,
+    "provenance": "OpenStreetMap",
+    "elevation": 3092.0,
+    "longitude": 6.373108900000001,
+    "latitude": 45.105654300000005,
+    "name": "Crête d'Argentière",
+    "localized_names": null
+  },
+  {
+    "id": 1558555,
+    "provenance": "OpenStreetMap",
+    "elevation": 821.0,
+    "longitude": 14.362240400000001,
+    "latitude": 47.709647000000004,
+    "name": "Moosgieler Berg",
+    "localized_names": null
+  },
+  {
+    "id": 1558581,
+    "provenance": "OpenStreetMap",
+    "elevation": 328.0,
+    "longitude": 14.927081500000002,
+    "latitude": 44.701633900000004,
+    "name": "Baričevića glava",
+    "localized_names": null
+  },
+  {
+    "id": 1558582,
+    "provenance": "OpenStreetMap",
+    "elevation": 319.0,
+    "longitude": 14.920508300000002,
+    "latitude": 44.713874600000004,
+    "name": "Mujić glava",
+    "localized_names": null
+  },
+  {
+    "id": 1558591,
+    "provenance": "OpenStreetMap",
+    "elevation": 1786.0,
+    "longitude": 8.341240500000001,
+    "latitude": 46.9261793,
+    "name": "Chli Horn",
+    "localized_names": null
+  },
+  {
+    "id": 1558635,
+    "provenance": "OpenStreetMap",
+    "elevation": 1071.0,
+    "longitude": 13.480492900000002,
+    "latitude": 47.82114490000001,
+    "name": "Hochgupf",
+    "localized_names": null
+  },
+  {
+    "id": 1558636,
+    "provenance": "OpenStreetMap",
+    "elevation": 1090.0,
+    "longitude": 13.476681500000002,
+    "latitude": 47.821930200000004,
+    "name": "Großer Hollerberg",
+    "localized_names": null
+  },
+  {
+    "id": 1558637,
+    "provenance": "OpenStreetMap",
+    "elevation": 993.0,
+    "longitude": 13.483838400000002,
+    "latitude": 47.828399600000004,
+    "name": "Kleiner Hollerberg",
+    "localized_names": null
+  },
+  {
+    "id": 1558638,
+    "provenance": "OpenStreetMap",
+    "elevation": 1123.0,
+    "longitude": 13.457266,
+    "latitude": 47.8215153,
+    "name": "Koppenstein",
+    "localized_names": null
+  },
+  {
+    "id": 1558661,
+    "provenance": "OpenStreetMap",
+    "elevation": 2218.0,
+    "longitude": 11.4055522,
+    "latitude": 46.1379334,
+    "name": "Cima Cagnon",
+    "localized_names": null
+  },
+  {
+    "id": 1558662,
+    "provenance": "OpenStreetMap",
+    "elevation": 2014.0,
+    "longitude": 11.413072300000001,
+    "latitude": 46.145814300000005,
+    "name": "Col di Boi",
+    "localized_names": null
+  },
+  {
+    "id": 1558663,
+    "provenance": "OpenStreetMap",
+    "elevation": 2033.0,
+    "longitude": 11.443600400000001,
+    "latitude": 46.13249750000001,
+    "name": "Col di Fregio",
+    "localized_names": null
+  },
+  {
+    "id": 1558665,
+    "provenance": "OpenStreetMap",
+    "elevation": 2180.0,
+    "longitude": 11.4378589,
+    "latitude": 46.1358924,
+    "name": "Monte Pastronezze",
+    "localized_names": null
+  },
+  {
+    "id": 1558667,
+    "provenance": "OpenStreetMap",
+    "elevation": 420.0,
+    "longitude": 7.675326500000001,
+    "latitude": 47.606435100000006,
+    "name": "Schädelberg",
+    "localized_names": null
+  },
+  {
+    "id": 1558668,
+    "provenance": "OpenStreetMap",
+    "elevation": 1134.0,
+    "longitude": 8.096919900000001,
+    "latitude": 48.130742100000006,
+    "name": "Braunhörnle",
+    "localized_names": null
+  },
+  {
+    "id": 1558674,
+    "provenance": "OpenStreetMap",
+    "elevation": null,
+    "longitude": 14.537428400000001,
+    "latitude": 45.235842600000005,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 1558691,
+    "provenance": "OpenStreetMap",
+    "elevation": 157.8,
+    "longitude": 13.668103400000001,
+    "latitude": 45.7639044,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 1558735,
+    "provenance": "OpenStreetMap",
+    "elevation": 1209.0,
+    "longitude": 6.916267,
+    "latitude": 45.09540140000001,
+    "name": "San Colombano",
+    "localized_names": null
+  },
+  {
+    "id": 1558743,
+    "provenance": "OpenStreetMap",
+    "elevation": 1882.0,
+    "longitude": 13.243655400000002,
+    "latitude": 46.473121400000004,
+    "name": "Cima della Pecora",
+    "localized_names": null
+  },
+  {
+    "id": 1558801,
+    "provenance": "OpenStreetMap",
+    "elevation": 1447.0,
+    "longitude": 7.6387802,
+    "latitude": 43.9696001,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 1558807,
+    "provenance": "OpenStreetMap",
+    "elevation": 1771.0,
+    "longitude": 6.1887708,
+    "latitude": 45.678743000000004,
+    "name": "Dent de Pleuven",
+    "localized_names": null
+  },
+  {
+    "id": 1558813,
+    "provenance": "OpenStreetMap",
+    "elevation": 961.0,
+    "longitude": 12.759499300000002,
+    "latitude": 47.4472907,
+    "name": "Birnberg",
+    "localized_names": null
+  },
+  {
+    "id": 1560471,
+    "provenance": "OpenStreetMap",
+    "elevation": null,
+    "longitude": 15.415114700000002,
+    "latitude": 43.75676610000001,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 1558847,
+    "provenance": "OpenStreetMap",
+    "elevation": 2568.0,
+    "longitude": 12.7253637,
+    "latitude": 47.1561249,
+    "name": "Klockerinriedel",
+    "localized_names": null
+  },
+  {
+    "id": 1558848,
+    "provenance": "OpenStreetMap",
+    "elevation": 3413.0,
+    "longitude": 12.743103900000001,
+    "latitude": 47.151262700000004,
+    "name": "Hinterer Bratschenkopf",
+    "localized_names": null
+  },
+  {
+    "id": 1558849,
+    "provenance": "OpenStreetMap",
+    "elevation": 600.0,
+    "longitude": 15.014389000000001,
+    "latitude": 45.9968616,
+    "name": "Reber",
+    "localized_names": null
+  },
+  {
+    "id": 1558850,
+    "provenance": "OpenStreetMap",
+    "elevation": 2611.0,
+    "longitude": 12.662597600000002,
+    "latitude": 47.155326,
+    "name": "Roter Palfen",
+    "localized_names": null
+  },
+  {
+    "id": 1558851,
+    "provenance": "OpenStreetMap",
+    "elevation": 2256.0,
+    "longitude": 12.705284,
+    "latitude": 47.158419300000006,
+    "name": "Nasse Wand",
+    "localized_names": null
+  },
+  {
+    "id": 1558852,
+    "provenance": "OpenStreetMap",
+    "elevation": 2204.0,
+    "longitude": 12.6328276,
+    "latitude": 47.158023400000005,
+    "name": "Sprengkogel",
+    "localized_names": null
+  },
+  {
+    "id": 1558853,
+    "provenance": "OpenStreetMap",
+    "elevation": 2531.0,
+    "longitude": 12.657160600000001,
+    "latitude": 47.161012400000004,
+    "name": "Sedlgratköpfl",
+    "localized_names": null
+  },
+  {
+    "id": 1558854,
+    "provenance": "OpenStreetMap",
+    "elevation": 1776.0,
+    "longitude": 12.7229565,
+    "latitude": 47.178108900000005,
+    "name": "Wielingerkogel",
+    "localized_names": null
+  },
+  {
+    "id": 1558862,
+    "provenance": "OpenStreetMap",
+    "elevation": 804.0,
+    "longitude": 14.181787400000001,
+    "latitude": 48.545537,
+    "name": "Asberg",
+    "localized_names": null
+  },
+  {
+    "id": 1558866,
+    "provenance": "OpenStreetMap",
+    "elevation": null,
+    "longitude": 11.983659800000002,
+    "latitude": 45.943763100000005,
+    "name": "Col Miotto",
+    "localized_names": null
+  },
+  {
+    "id": 1558869,
+    "provenance": "OpenStreetMap",
+    "elevation": 38.0,
+    "longitude": 14.737619600000002,
+    "latitude": 44.827879200000005,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 1558871,
+    "provenance": "OpenStreetMap",
+    "elevation": 90.0,
+    "longitude": 14.7292356,
+    "latitude": 44.822875700000004,
+    "name": null,
+    "localized_names": null
+  },
+  {
+    "id": 1558872,
+    "provenance": "OpenStreetMap",
+    "elevation": 135.0,
+    "longitude": 14.737882700000002,
+    "latitude": 44.8136001,
+    "name": "Kruna",
+    "localized_names": null
+  },
+  {
+    "id": 1558882,
+    "provenance": "OpenStreetMap",
+    "elevation": null,
+    "longitude": 10.709615500000002,
+    "latitude": 46.8638351,
+    "name": "Fernereggspitz",
+    "localized_names": null
+  }]

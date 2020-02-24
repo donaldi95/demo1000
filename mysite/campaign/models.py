@@ -3,7 +3,8 @@ from users import models as user_models
 from django.utils import timezone
 from datetime import date
 from django.urls import reverse
-
+from .validators import validate_start_date
+from django.core.exceptions import ValidationError
 # Create your models here.
 class Campaign(models.Model):
 	Start = 'Start'
@@ -27,6 +28,12 @@ class Campaign(models.Model):
 	#method to find the url to a specific campaign
 	def get_absolute_url(self):
 		return reverse('campaign-detail', kwargs={'pk': self.pk})
+
+
+	def clean(self):
+		# Don't allow draft entries to have a pub_date.
+		if self.start_date >= self.end_date:
+			raise ValidationError('End Date should be greater than Start date ')
 
 class Enroll(models.Model):
 	user_id 	= models.ForeignKey(user_models.MyUser, on_delete=models.CASCADE)

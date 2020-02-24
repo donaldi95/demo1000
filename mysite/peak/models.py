@@ -1,7 +1,7 @@
 from django.db import models
 from campaign import models as campaign_model
 from django.utils import timezone
-
+from .validators import validate_file_extension
 # Create your models here.
 
 
@@ -15,7 +15,7 @@ class Peak(models.Model):
 	provenance_org	= models.CharField(blank=True,max_length=1000,null=True)
 	lat 			= models.DecimalField(default=0.0,max_digits=22, decimal_places=16)
 	lon 			= models.DecimalField(default=0.0,max_digits=22, decimal_places=16)
-	alt				= models.DecimalField(default=0.0,max_digits=22, decimal_places=16)
+	alt				= models.DecimalField(blank=True,null=True,default=0.0,max_digits=22, decimal_places=16)
 	status		 	= models.BooleanField(default=True)
 	date_posted 	= models.DateField(default=timezone.now)
-	fileJson 		= models.FileField(upload_to='profile_pics')
+	fileJson 		= models.FileField(upload_to='profile_pics',validators=[validate_file_extension])

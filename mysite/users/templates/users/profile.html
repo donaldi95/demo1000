@@ -30,12 +30,17 @@
             <img class="rounded-circle account-img" src="{{ user.profile.image.url }}">
             <div class="media-body">
               <h2 class="account-heading">{{ user.username }}</h2>
-              <h2 class="account-heading">{{ user.id }}</h2>
               <p class="text-secondary">{{ user.email }}</p>
-              <p class="text-secondary">User is Manager {{ user.is_manager }}</p>
-               <p class="text-secondary">User is Worker {{ user.is_worker }}</p>
+                {% if user.is_manager %}
+                  <p class="text-secondary">You are a manager </p>
+                {% else %}
+                  <p class="text-secondary">You are a worker </p>
+                {% endif %}
             </div>
           </div>
+          {% if user.is_manager %}
+          <a class="btn" href="{% url 'campaign-create' %}">Add new Campaign</a>
+          {% endif %}
         </div>
       </div>
 

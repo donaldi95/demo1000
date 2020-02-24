@@ -26,7 +26,8 @@ from django import template
 from user_activities.models import Campaign_enrollment,Peak_annotations
 import json
 from django.http import Http404
-
+import datetime 
+from .forms import Update_Campaign,Create_campaigns
 
 # Create your views here.
 
@@ -65,6 +66,8 @@ class CampaignListView(ListView):
 		context["actualUser"] 			= self.request.user
 		context["userHasEnrolled"]		= CheckUserEnroll(self.request.GET.get('id'), self.request.user.id)
 		context["closed_campaigns"] 	= Campaign.objects.filter(status = 'Closed')
+		context["actual_date"]  		= datetime.datetime.now().strftime("%Y-%m-%d")
+
 		return context
 
 	#to do here is to clear the form after submit
@@ -104,21 +107,29 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 		context["form"] 				= self.get_form()
 		context["actualUser"] 			= self.request.user
 		context["userHasEnrolled"]		= CheckUserEnroll(self.object.id, self.request.user.id)
-		context["campaign_peaks"] 		= Peak.objects.filter(campaign_id = self.kwargs['pk']).values()
+		context["campaign_peaks"] 		= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=1).values()
+		peak_ids						= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=1).values_list('id', flat=True)
+		context["peaks_notannotate"] 	= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=0).values()
 		peaks							= context["campaign_peaks"]
 		context["totalPeaksForCampaign"]= peaks.count()
 		annotatedPeaks = []
 		rejectedPeaks  = []
 		allPeaks 	   = 0
-		#find dthe total non annotated peaks
+		#find the total non annotated peaks
 		peaks = list(peaks)
 		incr = 0
+		annotated_peaks = None
+		rejected_peaks  = None 
+		peaks
 		if peaks:
 			#here we get all the annotations that the peaks of the campaigns have annotations
+			annotated_peaks  = Peak_annotations.objects.filter(peak_id__in = peak_ids).values_list('peak_id').distinct()
+			rejected_peaks   = Peak_annotations.objects.filter(peak_id__in = peak_ids,status=0).values('peak_id').distinct()
 			for peak in peaks:
 				temp  = Peak_annotations.objects.filter(peak_id = peak['id']).values('peak_id').distinct()
-				temp2 = Peak_annotations.objects.filter(peak_id = peak['id'],status=0).values('peak_id').distinct()
+				temp2 = list(Peak_annotations.objects.filter(peak_id = peak['id'],status=0).values('peak_id').distinct())
 				temp3 = list(Peak_annotations.objects.filter(peak_id = peak['id']).values())
+
 				if temp:
 					annotatedPeaks.append(temp)
 
@@ -127,6 +138,7 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 
 				if temp3:
 					allPeaks = temp3
+
 			if allPeaks:
 				for i in allPeaks:
 					for p2 in allPeaks:
@@ -135,6 +147,11 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 								incr += 1
 			context['notAnnotatedPeaks'] 	= context["totalPeaksForCampaign"]-len(annotatedPeaks)
 			context['AnnotatedPeaks'] 		= len(annotatedPeaks)
+			#list of peaks who have been annotated at least once.
+			context['annotatedList'] 		= Peak.objects.filter(id__in = annotated_peaks).values()
+			#list of peaks with at least one rejected annotation
+			context['rejectedList']			= Peak.objects.filter(id__in = rejected_peaks).values()
+			print(rejected_peaks)
 			context['RejectedPeaks'] 		= len(rejectedPeaks)
 			context['conflix']				= incr
 		return context
@@ -146,14 +163,26 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 				#print(mydata['action'])
 				peaks1 = list(Peak.objects.filter(id = mydata['peak_id']).values())
 				annotation_evaluated  = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
+				positive = 0
+				negative = 0
+				if annotation_evaluated:
+					for i in annotation_evaluated:
+						if i['valued'] == 1:
+							positive += 1
+						elif i['valued'] == 0:
+							negative += 1
+				print(negative)
+				print(positive)
 				data = {
 					'peaks_json':peaks1, 
 					'annotations':annotation_evaluated,
+					'positive':positive,
+					'negative':negative
 					}
 				return JsonResponse({'peaks': data},content_type='application/json')
 		else:
-			if request.POST['evaluateAnnotation']:
-				print("okay we in")
+			if 'evaluateAnnotationForm' in request.POST:
+				#print("okay we in")
 				self.object 			= None
 				annotation_peak 		= self.request.POST.get('hidden_peak_id')
 				annotation 				= Peak_annotations.objects.get(id = annotation_peak)
@@ -161,19 +190,20 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 				annotation.status 		= self.request.POST.get('evaluateAnnotation')
 				campaign_id 			= self.request.POST.get('act_cpm')
 				#annotation.valued 		= True
-				print(annotation.status)
+				#print(annotation.status)
 				#post.campaign_id	= Campaign.objects.get(id = request.POST.get('id'))
 				#post.user_id   	= request.user
 				annotation.save()
-				messages.success(request, 'You reviewd the annotaion')
+				messages.success(request, 'You revied the annotaion')
 				return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': campaign_id}))
-			else:
+			elif 'addPeakForm' in request.POST:
 				self.object = self.get_object()
 				form = self.get_form()
 				if form.is_valid():
 					return self.form_valid(form)
 				else:
-					return self.form_invalid(form)
+					messages.warning(request,  form.errors)
+					return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': self.object.id}))
 		return HttpResponseRedirect(reverse('campaign-detail', kwargs={'pk': self.object.id}))
 
 	def test_func(self):
@@ -234,8 +264,8 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 class CampaignCreateView(UserPassesTestMixin,LoginRequiredMixin,CreateView):
 	model = Campaign
 	# passing the field for the form for each campaign
-	fields = ['name','status','start_date','end_date']
-
+	#fields = ['name','status','start_date','end_date']
+	form_class = Create_campaigns
 	#checking if form is valid and we add the current user to the form
 	def form_valid(self,form):
 		#user_id is the id of the user we want to associate to the campaign
@@ -251,9 +281,12 @@ class CampaignCreateView(UserPassesTestMixin,LoginRequiredMixin,CreateView):
 
 # creatign a new campaign
 class CampaignUpdateView(LoginRequiredMixin,UserPassesTestMixin, UpdateView):
-	model = Campaign
+	model 		   		= Campaign
+	template_name  		= 'campaign/campaign_update.html' # <app>/<model>_<viewtype>.html
+	context_object_name = 'campaign-update'
+	form_class 			= Update_Campaign
 	# passing the field for the form for each campaign
-	fields = ['name','status','start_date','end_date']
+	#fields = ['name','status','start_date','end_date']
 
 	#checking if form is valid and we add the current user to the form
 	def form_valid(self,form):

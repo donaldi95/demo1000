@@ -6,10 +6,14 @@ from campaign.models import Campaign
 from user_activities.models import Campaign_enrollment,Peak_annotations
 from .models import MyUser
 from django.views.defaults import page_not_found
+from django.http import HttpResponseForbidden,HttpResponseRedirect
 
 
 
 def register(request):
+    if request.user.is_authenticated:
+        return render(request, 'users/profile.html' )
+
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
 

@@ -2,24 +2,36 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
+
+  <!-- Example single danger button -->
+    <div class="container campaign-filter" >
+        <select class="btn-group ">
+            <option class="default">All Campaigns</option>
+            <option class="dropdown-item  " value="Closed">Closed Campaigns</option>
+            <option class="dropdown-item " value="Start">Started Campaigns</option>
+            <option class="dropdown-item " value="Created">Created Campaigns</option>
+        </select>
+    </div>
+
+  <div class="box">
     {% for campaign in campaign %}
-      <div class="container add-margin-top">
+      <div class="container add-margin-top  {{ campaign.status }}">
         
               <article class="media content-section">
                 <img class="rounded-circle article-img" src="{{ campaign.user_id.profile.image.url }}">
                 <div class="media-body">
                   <div class="article-metadata">
-                    <a class="mr-2" href="#">{{ campaign.user_id }}</a>
+                    <p class="mr-2">{{ campaign.user_id }}</p>
                     <p class="mr-2">Campaign Created on : {{ campaign.date_posted|date:"F d, Y" }}</p>
                   </div>
-                  <h2><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Start Date is: {{ campaign.start_date }}</a></h2>
+                  <h2><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Name: {{ campaign.name }}</a></h2>
+                  <p class="article-content">Start Date is: {{ campaign.start_date }}</p>
                   <p class="article-content">End date : {{ campaign.end_date }}</p>
                   <p class="article-content">Campaign Status is : {{ campaign.status }}</p>
-                  <p class="article-content">Id is {{campaign.id}}</p>
                 </div>
               </article>
               <div class="row">  
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and campaign.end_date|date:'Y-m-d' > actual_date %}
                 {% if campaign.status == 'started' or campaign.status == 'Start' %}
                   {% ifnotequal campaign.user_id.email request.user.email %}
                    <form method="POST" enctype="multipart/form-data">
@@ -36,10 +48,6 @@
     
       </div>
     {% endfor %}
-
-    {% if closed_campaigns %}
-      There are closed campaigns
-    {% else %}
-      there are not
-    {% endif %}
+  </div>
+    
 {% endblock content %}

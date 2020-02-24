@@ -20,7 +20,8 @@ from users.models import MyUser
 from user_activities.models import Peak_annotations,Campaign_enrollment
 from .models import Peak
 import json
-	
+import datetime 
+  
 class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 	model 				=  Peak
 	template_name 		= 'peak/peak.html' # <app>/<model>_<viewtype>.html
@@ -32,6 +33,17 @@ class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 		context["form"] 		= self.get_form()
 		context["user_enrolled"]= Campaign_enrollment.objects.filter(user_id = self.request.user.id)
 		context["status"]       = list(Campaign.objects.filter(id=self.kwargs['pk']).values('status'))
+		context["end_date"]     = Campaign.objects.filter(id=self.kwargs['pk']).values('end_date')
+		context["actual_date"]  = datetime.datetime.now().strftime("%Y-%m-%d")
+
+		peaks_campaign 			= Peak.objects.filter(campaign_id = self.kwargs['pk']).values_list('id',flat=True)
+		evaluated_peaks 		= Peak_annotations.objects.filter(peak_id__in = peaks_campaign, user_id = self.request.user.id).values_list('peak_id').distinct()
+		context["not_evalated_peaks"] = Peak.objects.filter(campaign_id = self.kwargs['pk'],status = 1).exclude(id__in=evaluated_peaks).values()
+		context["evalated_peaks"] = Peak.objects.filter(campaign_id = self.kwargs['pk'], id__in = evaluated_peaks,status = 1).values()
+		context["not_to_annotate"] = Peak.objects.filter(campaign_id = self.kwargs['pk'],status = 0).values()
+
+		print(context["not_evalated_peaks"])
+		print(context["evalated_peaks"])
 		self.campaign_id 		= Campaign.objects.filter(user_id= self.request.user,id=self.kwargs['pk'])
 		if self.campaign_id:
 				self.campaign_id 		= get_object_or_404(Campaign, id=self.kwargs['pk'])
@@ -50,42 +62,52 @@ class PeakListView(FormMixin,LoginRequiredMixin,ListView):
 		if self.request.is_ajax():
 			mydata = json.loads(request.body)
 			if request.method == 'POST' and mydata['action'] == 'getPeakData':
-				#print(mydata['action'])
+				has_annotated = False 
+				if(Peak_annotations.objects.filter(peak_id = mydata['peak_id'], user_id = self.request.user.id).values()):
+					has_annotated = True
+				print(has_annotated)
 				peaks1 = list(Peak.objects.filter(id = mydata['peak_id']).values())
 				data1  = list(Peak_annotations.objects.filter(peak_id = mydata['peak_id']).values())
-				print(peaks1)
-				data = {
+				data   = {
 					'peaks_json':peaks1, 
 					'annotations':data1,
+					'has_annotated':has_annotated,
 					}
 				#print(data['annotations'])
 				return JsonResponse({'peaks': data},content_type='application/json')
 		else:
 			self.object = Peak.objects
+
 			form = self.get_form()
 			if form.data['hidden_id'] != '0':
+				
 				if form.is_valid():
-					messages.success(request, 'Annotation Send, it is waiting for review from Manager')
-					return self.form_valid(form)
+					has_annotated = False 
+					if(Peak_annotations.objects.filter(peak_id = form.data['hidden_id'], user_id = self.request.user.id).values()):
+						messages.warning(request, 'You have already annotated valid')
+						return HttpResponseRedirect(reverse('peak-list', kwargs={'pk':self.kwargs['pk']}))
+					else:
+						peak 						 = get_object_or_404(Peak, id=form.data['hidden_id'])
+						user 						 = get_object_or_404(MyUser, id=self.request.user.id)
+						form.instance.peak_id 		 = peak
+						form.instance.user_id 		 = user
+						form.instance.name 			 = form.data['w_name']
+						form.instance.localize_names = form.data['localized_names']
+						form.save()
+						messages.warning(request, 'Your annotation is waiting for review valid')
+						return HttpResponseRedirect(reverse('peak-list', kwargs={'pk':self.kwargs['pk']}))
 				else:
-					messages.warning(request, 'Annotation could not be send')
-					return self.form_invalid(form)
+					messages.warning(request, 'Form is not valid')
+					return HttpResponseRedirect( reverse('peak-list', kwargs={'pk':self.kwargs['pk']}))
 			else:
 				messages.warning(request, 'You need to select an Peak to annotate')
 				return HttpResponseRedirect(reverse('peak-list', kwargs={'pk':self.kwargs['pk']}))
 		return  HttpResponseRedirect(reverse('peak-list', kwargs={'pk':self.kwargs['pk']}))
 
 
-	def form_valid(self,form):
-		form.fields 				 = self.object
-		peak 						 = get_object_or_404(Peak, id=form.data['hidden_id'])
-		user 						 = get_object_or_404(MyUser, id=self.request.user.id)
-		form.instance.peak_id 		 = peak
-		form.instance.user_id 		 = user
-		form.instance.name 			 = form.data['w_name']
-		form.instance.localize_names = form.data['localized_names']
-		form.save()
-		return super().form_valid(form)
+	#def form_valid(self,form):
+		#form.fields 				 = self.object
+		#return super().form_valid(form)
 
 
 

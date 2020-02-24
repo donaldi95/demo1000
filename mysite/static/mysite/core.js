@@ -33,7 +33,7 @@ function groupClick(event) {
 
         annotation = JSON.parse(JSON.stringify(result.peaks['annotations']));
        // console.log(annotation.length);
-        for (var i = 0; i <= annotation.length-1; i++) {
+        for (var i = 0; i <= annotation.length-1; i++){
           //console.log(i);
           $('#annotation').append(
              "<p class='annotaion'> Annotation name : "+ annotation[i]['w_name'] + " <br> <span> Status is : </span>"+  annotation[i]['status'] +" </p>"
@@ -63,8 +63,6 @@ function groupClick(event) {
 
 }
 
-
-
 function adminData(event) {
   var csrftoken     = jQuery("[name=csrfmiddlewaretoken]").val();
   const id          = this.options.id;
@@ -93,16 +91,39 @@ function adminData(event) {
         annotation = JSON.parse(JSON.stringify(result.peaks['annotations']));
        // console.log(annotation.length);
 
-        
-
+        var mydiv = $('#annotationsEvaluated .annotation_admin tr');
+        if(mydiv.length > 0){
+            $('#annotationsEvaluated .annotation_admin tr').remove();
+        }
+        var mydiv2 = $('#annotationsNotEvaluated .annotation_admin tr');
+        if(mydiv2.length > 0){
+            $('#annotationsNotEvaluated .annotation_admin tr').remove();
+        }
+        if($('#annotationsNotEvaluated .annotation_admin tr').length > 1){
+            $('#annotationsNotEvaluated .annotation_admin tr').remove();
+        }
+        if($('.positive span').length > 0){
+            $('.positive span').remove();
+        }
+         if($('.negative span').length > 0){
+            $('.negative span').remove();
+        }
+        console.log(result.peaks['positive']);
+        console.log(result.peaks['negative']);
         //$clone= $('.checkAnnotation').clone();
         //$copy = $clone.clone(); 
+           if(result.peaks['positive'] > 0){
+            $('.positive').append(" <span> Positive PeakValidity : " + result.peaks['positive'] + "</span>" );
+          }
+          if(result.peaks['negative'] > 0){
+            $('.negative').append("<span> Negative PeakValidity : " + result.peaks['negative'] +"</span>" );
+          }
         for (var i = 0; i <= annotation.length-1; i++) {
 
           //console.log(annotation[i]['valued']);
           var peakName ='No Value';
           if(annotation[i]['w_name']){ peakName = annotation[i]['w_name']; }
-           
+
           if(annotation[i]['status'] == null){
             $('.noMoment .formNotInserted .hidden_peak_id').val(annotation[i]['id']);
             $(".noMoment").removeClass("formNotInserted");
@@ -135,6 +156,7 @@ function adminData(event) {
           $(".noMoment").addClass("formNotInserted");
         }
 
+
         /*
         *check if status is to annotate or not to annotate, 
         *than we can show the form of annotation 
@@ -145,6 +167,8 @@ function adminData(event) {
         }else{
           $("#submitAnnotation").hide();
         }
+
+
     },
     error: function(result) {
       console.log("error");
@@ -291,4 +315,23 @@ document.addEventListener("touchmove", touchHandler => {
 
   root.style.setProperty("--mouse-x", x);
   root.style.setProperty("--mouse-y", y);
+});
+
+
+
+/**********************************
+
+Show hide campaigns based on filter
+
+*********************************/
+
+$(document).ready(function(){
+
+      $('.campaign-filter select').on('change', function() {
+        var optionValue = $(this).attr("value");
+         if (optionValue === 'Start') {
+            $('.Closed').hide();
+            $('.Created').hide();
+         }
+     });
 });
