@@ -47,23 +47,21 @@
       <!-- Campaign TAB, if user is manager-->
       {% if user.is_manager %}
         <div class="tab-pane text-style" id="manager-campaigns">
-          <h5 class="mb-0">
-                {% if campaigns %}
-                  {% for campaign in campaigns %}
-                      <article class="media content-section">
-                              <img class="rounded-circle article-img" src="{{campaign.user_id.profile.image.url }}">
-                              <div class="media-body">
-                                <div class="article-metadata">
-                                  <h3><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Campaign Name: {{ campaign.name }}</a></h3>
-                                  <a class="mr-2" href="#">{{ campaign.user_id }}</a>
-                                  <small class="text-muted">Date Posted : {{ campaign.date_posted|date:"F d, Y" }}</small>
-                                </div>
-                              
-                              </div>
-                        </article>
-                  {% endfor %}
-                {% endif %}
-          </h5>
+          {% if campaigns %}
+            {% for campaign in campaigns %}
+                <article class="media content-section">
+                        <img class="rounded-circle article-img" src="{{campaign.user_id.profile.image.url }}">
+                        <div class="media-body">
+                          <div class="article-metadata">
+                            <h3><a class="article-title" href="{% url 'campaign-detail' campaign.id %}">Campaign Name: {{ campaign.name }}</a></h3>
+                            <a class="mr-2" href="#">{{ campaign.user_id }}</a>
+                            <small class="text-muted">Date Posted : {{ campaign.date_posted|date:"F d, Y" }}</small>
+                            <p> {{ campaign.status }}</p>
+                          </div>
+                        </div>
+                </article>
+            {% endfor %}
+          {% endif %}
         </div>
       {% endif %}
 
