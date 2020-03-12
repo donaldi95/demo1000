@@ -46,7 +46,7 @@ def campaign(request):
 	return render(request,'campaign/campaign.html',context)
 
 
-# class base view
+# class base viewd
 class CampaignListView(ListView):
 	model 								= Campaign
 	template_name 						= 'campaign/campaign.html' # <app>/<model>_<viewtype>.html

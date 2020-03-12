@@ -16,6 +16,7 @@
           {% endif %}
           <li class=""><a href="#enrolled-campaigns" data-toggle="tab">Campaigns Enrolled</a></li>                               
           <li class=""><a href="#user-annotations" data-toggle="tab">Your Annotations</a></li>
+          <li class=""><a href="#edit-profile" data-toggle="tab">Edit Profile</a></li>
       </ul>
     </nav>
   </div>
@@ -94,6 +95,39 @@
             You have not yet annotated any peak, check your enrolled campaigs if respective worker has published any peak. <br>
             <a href="{% url 'campaign-home' %}">Check All Published Campaigns </a>
           {% endif %}                
+        </div>
+      </div>
+
+       <!-- Edit profile -->
+      <div class="tab-pane" id="edit-profile">
+        <div class="card-body">
+          <div class="content-section login-register-wrapper">
+              <div class="login-register">
+                <form method="POST">
+                      {% csrf_token %}
+                      <fieldset class="form-group">
+                          <legend class="border-bottom mb-4">Change Password</legend>
+                          {{ form|crispy }}
+                      </fieldset>
+                      <div class="form-group">
+                          <button class="btn btn-outline-info" name="updatePassowrd" type="submit">Change</button>
+                      </div>
+                </form>
+              </div>
+          </div>
+
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Profile Info</legend>
+                {{ u_form|crispy }}
+                {{ p_form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" name="profiledata" type="submit">Update</button>
+            </div>
+        </form>
+
         </div>
       </div>
 
