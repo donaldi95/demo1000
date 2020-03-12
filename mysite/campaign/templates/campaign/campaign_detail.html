@@ -198,12 +198,28 @@
             var annotate_status      = [];
             var not_annotate_status      = [];
             var rejected_list_el = [];
+            var new_annotations_list = [];
+            var annotatedList_list = [];
 
             var greenIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin1.png'}),
             redIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin2.png'}),
-            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin3.png'});
+            orangeIcon = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin3.png'}),
+            newannotated  = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin4.png'}),
+            annotated = new LeafIcon({iconUrl: 'http://127.0.0.1:8000/media/pin5.png'});
 
             //creating a json format for the data we have so we can pass it to map
+
+             var new_annotations = [
+                {% for p in new_annotations %}
+                    {% if not forloop.first %},{% endif %}
+                    {
+                        lat     :    "{{ p.lat }}",
+                        lon     :    "{{ p.lon }}",
+                        status  :    "{{ p.status }}",
+                        id      :    "{{ p.id     }}",
+                    }
+                {% endfor %}
+                ]
 
             var articles = [
                 {% for p in campaign_peaks %}
@@ -243,6 +259,21 @@
                 {% endfor %}
             ]
 
+            
+
+             var annotatedList = [
+
+              {% for p in annotatedList %}
+                    {% if not forloop.first %},{% endif %}
+                    {
+                        lat     :    "{{ p.lat }}",
+                        lon     :    "{{ p.lon }}",
+                        status  :    "{{ p.status }}",
+                        id      :    "{{ p.id     }}",
+                    }
+                {% endfor %}
+            ]
+
             // setting a main point on the map where the map will be focused on oppening
             if(articles[0] != null ){
               map.setView([articles[0]['lat'], articles[0]['lon']], 3);
@@ -254,6 +285,27 @@
             //long lat variables
             var lat, lon;
             //console.log(rejected_list);
+
+           
+            for (var i = 0; i < annotatedList.length; i++) {
+                //console.log(articles[i]['lat']);
+                lat  = annotatedList[i]['lat'];
+                lon  = annotatedList[i]['lon'];
+                id   = annotatedList[i]['id'];
+                //console.log(rejected_list[i]['lat']);
+             
+                annotatedList_list.push(L.marker([lat, lon], {icon: annotated, title:'green', id:id}).addTo(map).on("click", adminData));
+            }
+            for (var i = 0; i < new_annotations.length; i++) {
+                //console.log(articles[i]['lat']);
+                lat  = new_annotations[i]['lat'];
+                lon  = new_annotations[i]['lon'];
+                id   = new_annotations[i]['id'];
+                //console.log(rejected_list[i]['lat']);
+             
+                new_annotations_list.push(L.marker([lat, lon], {icon: newannotated, title:'green', id:id}).addTo(map).on("click", adminData));   
+                
+            }
             for (var i = 0; i < rejected_list.length; i++) {
                 //console.log(articles[i]['lat']);
                 lat  = rejected_list[i]['lat'];
@@ -292,10 +344,14 @@
             var group_annotate_status = L.layerGroup(annotate_status);
             var group_rejected_list = L.layerGroup(rejected_list_el);
             var group_not_annotate_status = L.layerGroup(peaks_not_annotate);
+            var group_annotatedList_list = L.layerGroup(annotatedList_list);
+            var group_new_annotations_list = L.layerGroup(new_annotations_list);
             var overlayMaps = {
                 "Peaks with annotate status": group_annotate_status,
                 "Peak with rejected annotations" : group_rejected_list,
                 "Peak not to annotate" : group_not_annotate_status,
+                "New annotated Peaks"  : group_new_annotations_list,
+                "Annotated" : group_annotatedList_list,
             };
             L.control.layers(overlayMaps).addTo(map);
             //var groupB = L.layerGroup(markersB);

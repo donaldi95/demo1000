@@ -107,13 +107,13 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 		context["form"] 				= self.get_form()
 		context["actualUser"] 			= self.request.user
 		context["userHasEnrolled"]		= CheckUserEnroll(self.object.id, self.request.user.id)
-		context["campaign_peaks"] 		= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=1).values()
 		peak_ids						= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=1).values_list('id', flat=True)
 		context["peaks_notannotate"] 	= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=0).values()
-		peaks							= context["campaign_peaks"]
+		peaks							= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=1).values()
 		context["totalPeaksForCampaign"]= peaks.count()
 		annotatedPeaks = []
 		rejectedPeaks  = []
+		new_annotations  = []
 		allPeaks 	   = 0
 		#find the total non annotated peaks
 		peaks = list(peaks)
@@ -129,7 +129,9 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 				temp  = Peak_annotations.objects.filter(peak_id = peak['id']).values('peak_id').distinct()
 				temp2 = list(Peak_annotations.objects.filter(peak_id = peak['id'],status=0).values('peak_id').distinct())
 				temp3 = list(Peak_annotations.objects.filter(peak_id = peak['id']).values())
-
+				temp4 = Peak_annotations.objects.filter(peak_id = peak['id'],status ='').values('peak_id').distinct()
+				#get all the peaks
+				
 				if temp:
 					annotatedPeaks.append(temp)
 
@@ -139,6 +141,8 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 				if temp3:
 					allPeaks = temp3
 
+				if temp4:
+					new_annotations.append(temp4)
 			if allPeaks:
 				for i in allPeaks:
 					for p2 in allPeaks:
@@ -148,10 +152,14 @@ class CampaignDetailView(UserPassesTestMixin,LoginRequiredMixin,FormMixin,Detail
 			context['notAnnotatedPeaks'] 	= context["totalPeaksForCampaign"]-len(annotatedPeaks)
 			context['AnnotatedPeaks'] 		= len(annotatedPeaks)
 			#list of peaks who have been annotated at least once.
-			context['annotatedList'] 		= Peak.objects.filter(id__in = annotated_peaks).values()
-			#list of peaks with at least one rejected annotation
+			context['annotatedList'] 		= Peak.objects.filter(id__in = annotated_peaks).exclude(id__in = new_annotations).values()
+			#list of peaks with at least one rejected annotatio
 			context['rejectedList']			= Peak.objects.filter(id__in = rejected_peaks).values()
-			print(rejected_peaks)
+			#peaks who have new annotations
+			context['new_annotations']      = Peak.objects.filter(id__in = new_annotations).values()
+			#campaign peaks not annotated
+			context["campaign_peaks"] 		= Peak.objects.filter(campaign_id = self.kwargs['pk'], status=1).exclude(id__in = annotated_peaks).values()
+			#print(rejected_peaks)
 			context['RejectedPeaks'] 		= len(rejectedPeaks)
 			context['conflix']				= incr
 		return context
