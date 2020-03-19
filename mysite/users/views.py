@@ -5,10 +5,15 @@ from .admin import UserCreationForm
 from campaign.models import Campaign
 from user_activities.models import Campaign_enrollment,Peak_annotations
 from .models import MyUser
+
 from django.views.defaults import page_not_found
+
 from django.http import HttpResponseForbidden,HttpResponseRedirect
+
 from django.contrib.auth import update_session_auth_hash
+
 from django.contrib.auth.forms import PasswordChangeForm
+
 from django.views.generic import (
     UpdateView,
     )

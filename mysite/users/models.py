@@ -47,7 +47,7 @@ class MyUser(AbstractBaseUser):
         unique=True,
     )
     date_of_birth   = models.DateField()
-    username        = models.CharField(max_length=200)
+    username        = models.CharField(max_length=150)
     is_active       = models.BooleanField(default=True)
     is_worker       = models.BooleanField(default=False)
     is_manager      = models.BooleanField(default=False)
